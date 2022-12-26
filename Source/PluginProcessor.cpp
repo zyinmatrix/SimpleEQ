@@ -93,8 +93,10 @@ void SimpleEQAudioProcessor::changeProgramName (int index, const juce::String& n
 //==============================================================================
 void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+// MODIFIED BY zyinmatrix
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -134,6 +136,8 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    
+// MODIFIED by zyinmatrix
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -166,7 +170,8 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-    return new SimpleEQAudioProcessorEditor (*this);
+//    return new SimpleEQAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -181,6 +186,49 @@ void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBy
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+// MODIFIED by zyinmatrix
+juce::AudioProcessorValueTreeState::ParameterLayout
+SimpleEQAudioProcessor::createParameterLayout()
+{
+    // use AudioParameterFloat type for the parameters
+//    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    
+    // low cut, high cut frequency
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("LowCut Freq", 1), "LowCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("HighCut Freq", 1), "HighCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20000.f));
+    
+    // band filter 1 frequency, gain, and quality
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band1 Freq", 1), "Band1 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 250.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band1 Gain", 1), "Band1 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band1 Quality", 1), "Band1 Quality", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+    
+    // band filter 2 frequency, gain, and quality
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band2 Freq", 1), "Band2 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 2500.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band2 Gain", 1), "Band2 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band2 Quality", 1), "Band2 Quality", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+    
+    // band filter 3 frequency, gain, and quality
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band3 Freq", 1), "Band3 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 8000.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band3 Gain", 1), "Band3 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band3 Quality", 1), "Band3 Quality", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+    
+    // string array for slope
+    juce::StringArray slopeArray;
+    for (int i = 0; i<4; ++i){
+        juce::String str;
+        str << (12 + i*12);
+        str << " db/Oct";
+        slopeArray.add(str);
+    }
+    
+    // low cut, high cut slopes
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("LowCut Slope", 1), "LowCut Slope", slopeArray, 0));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("HighCut Slope", 1), "HighCut Slope", slopeArray, 0));
+    
+    return layout;
 }
 
 //==============================================================================
