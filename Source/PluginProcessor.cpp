@@ -109,6 +109,7 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     
     auto chainSettings = getChainSettings(apvts);
     
+    // calculate peak filters' coefficients
     auto band1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
                                                                                  chainSettings.band1Freq,
                                                                                  chainSettings.band1Quality,
@@ -124,6 +125,7 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
                                                                                  chainSettings.band3Quality,
                                                                                  juce::Decibels::decibelsToGain(chainSettings.band3GainInDecibles));
     
+    // set peak filter's coefficients
     *leftChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
     *rightChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
     
@@ -133,6 +135,49 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     *leftChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
     *rightChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
     
+    // calculate cut filters' coefficients
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
+                                                                                                          sampleRate,
+                                                                                                          2 * (chainSettings.lowCutSlope+1));
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq,
+                                                                                                          sampleRate,
+                                                                                                          2 * (chainSettings.highCutSlope+1));
+    
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    leftLowCut.setBypassed<0>(true);
+    leftLowCut.setBypassed<1>(true);
+    leftLowCut.setBypassed<2>(true);
+    leftLowCut.setBypassed<3>(true);
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+    rightLowCut.setBypassed<0>(true);
+    rightLowCut.setBypassed<1>(true);
+    rightLowCut.setBypassed<2>(true);
+    rightLowCut.setBypassed<3>(true);
+    
+    switch( chainSettings.lowCutSlope )
+    {
+        case Slope_48:
+            *leftLowCut.get<3>().coefficients = *lowCutCoefficients[3];
+            leftLowCut.setBypassed<3>(false);
+            *rightLowCut.get<3>().coefficients = *lowCutCoefficients[3];
+            rightLowCut.setBypassed<3>(false);
+        case Slope_36:
+            *leftLowCut.get<2>().coefficients = *lowCutCoefficients[2];
+            leftLowCut.setBypassed<2>(false);
+            *rightLowCut.get<2>().coefficients = *lowCutCoefficients[2];
+            rightLowCut.setBypassed<2>(false);
+        case Slope_24:
+            *leftLowCut.get<1>().coefficients = *lowCutCoefficients[1];
+            leftLowCut.setBypassed<1>(false);
+            *rightLowCut.get<1>().coefficients = *lowCutCoefficients[1];
+            rightLowCut.setBypassed<1>(false);
+        case Slope_12:
+            *leftLowCut.get<0>().coefficients = *lowCutCoefficients[0];
+            leftLowCut.setBypassed<0>(false);
+            *rightLowCut.get<0>().coefficients = *lowCutCoefficients[0];
+            rightLowCut.setBypassed<0>(false);
+        
+    }
     
 }
 
@@ -187,6 +232,7 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     auto chainSettings = getChainSettings(apvts);
     
+    // calculate peak filters' coefficients
     auto band1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
                                                                                  chainSettings.band1Freq,
                                                                                  chainSettings.band1Quality,
@@ -201,7 +247,7 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
                                                                                  chainSettings.band3Freq,
                                                                                  chainSettings.band3Quality,
                                                                                  juce::Decibels::decibelsToGain(chainSettings.band3GainInDecibles));
-    
+    // set peak filter's coefficients
     *leftChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
     *rightChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
     
@@ -210,6 +256,50 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     
     *leftChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
     *rightChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
+    
+    // calculate cut filters' coefficients
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
+                                                                                                          getSampleRate(),
+                                                                                                          2 * (chainSettings.lowCutSlope+1));
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq,
+                                                                                                          getSampleRate(),
+                                                                                                          2 * (chainSettings.highCutSlope+1));
+    
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    leftLowCut.setBypassed<0>(true);
+    leftLowCut.setBypassed<1>(true);
+    leftLowCut.setBypassed<2>(true);
+    leftLowCut.setBypassed<3>(true);
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+    rightLowCut.setBypassed<0>(true);
+    rightLowCut.setBypassed<1>(true);
+    rightLowCut.setBypassed<2>(true);
+    rightLowCut.setBypassed<3>(true);
+    
+    switch( chainSettings.lowCutSlope )
+    {
+        case Slope_48:
+            *leftLowCut.get<3>().coefficients = *lowCutCoefficients[3];
+            leftLowCut.setBypassed<3>(false);
+            *rightLowCut.get<3>().coefficients = *lowCutCoefficients[3];
+            rightLowCut.setBypassed<3>(false);
+        case Slope_36:
+            *leftLowCut.get<2>().coefficients = *lowCutCoefficients[2];
+            leftLowCut.setBypassed<2>(false);
+            *rightLowCut.get<2>().coefficients = *lowCutCoefficients[2];
+            rightLowCut.setBypassed<2>(false);
+        case Slope_24:
+            *leftLowCut.get<1>().coefficients = *lowCutCoefficients[1];
+            leftLowCut.setBypassed<1>(false);
+            *rightLowCut.get<1>().coefficients = *lowCutCoefficients[1];
+            rightLowCut.setBypassed<1>(false);
+        case Slope_12:
+            *leftLowCut.get<0>().coefficients = *lowCutCoefficients[0];
+            leftLowCut.setBypassed<0>(false);
+            *rightLowCut.get<0>().coefficients = *lowCutCoefficients[0];
+            rightLowCut.setBypassed<0>(false);
+        
+    }
     
     juce::dsp::AudioBlock<float> block(buffer);
     
@@ -223,6 +313,7 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     // pass the context to filter chain for processing
     leftChain.process(leftContext);
     rightChain.process(rightContext);
+    
     
 //    std::cout << chainSettings.band1Freq;
 }
@@ -261,8 +352,8 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     settings.lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
     settings.highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
     
-    settings.lowCutSlope = apvts.getRawParameterValue("LowCut Slope")->load();
-    settings.highCutSlope = apvts.getRawParameterValue("HighCut Slope")->load();
+    settings.lowCutSlope = static_cast<Slope> (apvts.getRawParameterValue("LowCut Slope")->load());
+    settings.highCutSlope = static_cast<Slope> (apvts.getRawParameterValue("HighCut Slope")->load());
     
     // band 1 frequency, gain, and quality
     settings.band1Freq = apvts.getRawParameterValue("Band1 Freq")->load();

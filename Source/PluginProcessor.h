@@ -11,6 +11,16 @@
 #include <JuceHeader.h>
 
 //MODIFIED by zyinmatrix
+
+// enum for slope settings
+enum Slope
+{
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48
+};
+
 // struct that stores the value of all parameters
 struct ChainSettings
 {
@@ -18,7 +28,7 @@ struct ChainSettings
     float band2Freq{0}, band2GainInDecibles{0}, band2Quality{1.f};
     float band3Freq{0}, band3GainInDecibles{0}, band3Quality{1.f};
     float lowCutFreq{0}, highCutFreq{0};
-    int lowCutSlope{0}, highCutSlope{0};
+    int lowCutSlope{Slope::Slope_12}, highCutSlope{Slope::Slope_12};
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
