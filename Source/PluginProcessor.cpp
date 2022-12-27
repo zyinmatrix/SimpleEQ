@@ -301,6 +301,42 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         
     }
     
+    auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
+    leftHighCut.setBypassed<0>(true);
+    leftHighCut.setBypassed<1>(true);
+    leftHighCut.setBypassed<2>(true);
+    leftHighCut.setBypassed<3>(true);
+    auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
+    rightHighCut.setBypassed<0>(true);
+    rightHighCut.setBypassed<1>(true);
+    rightHighCut.setBypassed<2>(true);
+    rightHighCut.setBypassed<3>(true);
+    
+    switch( chainSettings.highCutSlope )
+    {
+        case Slope_48:
+            *leftHighCut.get<3>().coefficients = *highCutCoefficients[3];
+            leftHighCut.setBypassed<3>(false);
+            *rightHighCut.get<3>().coefficients = *highCutCoefficients[3];
+            rightHighCut.setBypassed<3>(false);
+        case Slope_36:
+            *leftHighCut.get<2>().coefficients = *highCutCoefficients[2];
+            leftHighCut.setBypassed<2>(false);
+            *rightHighCut.get<2>().coefficients = *highCutCoefficients[2];
+            rightHighCut.setBypassed<2>(false);
+        case Slope_24:
+            *leftHighCut.get<1>().coefficients = *highCutCoefficients[1];
+            leftHighCut.setBypassed<1>(false);
+            *rightHighCut.get<1>().coefficients = *highCutCoefficients[1];
+            rightHighCut.setBypassed<1>(false);
+        case Slope_12:
+            *leftHighCut.get<0>().coefficients = *highCutCoefficients[0];
+            leftHighCut.setBypassed<0>(false);
+            *rightHighCut.get<0>().coefficients = *highCutCoefficients[0];
+            rightHighCut.setBypassed<0>(false);
+        
+    }
+    
     juce::dsp::AudioBlock<float> block(buffer);
     
     auto leftBlock = block.getSingleChannelBlock(0);
