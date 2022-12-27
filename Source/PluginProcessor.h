@@ -10,6 +10,20 @@
 
 #include <JuceHeader.h>
 
+//MODIFIED by zyinmatrix
+// struct that stores the value of all parameters
+struct ChainSettings
+{
+    float band1Freq{0}, band1GainInDecibles{0}, band1Quality{1.f};
+    float band2Freq{0}, band2GainInDecibles{0}, band2Quality{1.f};
+    float band3Freq{0}, band3GainInDecibles{0}, band3Quality{1.f};
+    float lowCutFreq{0}, highCutFreq{0};
+    int lowCutSlope{0}, highCutSlope{0};
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
+
 //==============================================================================
 /**
 */
@@ -65,9 +79,18 @@ private:
     // use processor chain to conect filters
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
     
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, Filter, CutFilter>;
     
     MonoChain leftChain, rightChain;
+    
+    enum ChainPositions
+    {
+      LowCut,
+      Band1,
+      Band2,
+      Band3,
+      HighCut
+    };
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };

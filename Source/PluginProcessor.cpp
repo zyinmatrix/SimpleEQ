@@ -107,6 +107,33 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     rightChain.prepare(spec);
     
     
+    auto chainSettings = getChainSettings(apvts);
+    
+    auto band1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                                                 chainSettings.band1Freq,
+                                                                                 chainSettings.band1Quality,
+                                                                                 juce::Decibels::decibelsToGain(chainSettings.band1GainInDecibles));
+    
+    auto band2Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                                                 chainSettings.band2Freq,
+                                                                                 chainSettings.band2Quality,
+                                                                                 juce::Decibels::decibelsToGain(chainSettings.band2GainInDecibles));
+
+    auto band3Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                                                 chainSettings.band3Freq,
+                                                                                 chainSettings.band3Quality,
+                                                                                 juce::Decibels::decibelsToGain(chainSettings.band3GainInDecibles));
+    
+    *leftChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
+    *rightChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
+    
+    *leftChain.get<ChainPositions::Band2>().coefficients = *band2Coefficients;
+    *rightChain.get<ChainPositions::Band2>().coefficients = *band2Coefficients;
+    
+    *leftChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
+    *rightChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
+    
+    
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -158,6 +185,32 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    auto chainSettings = getChainSettings(apvts);
+    
+    auto band1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                                                 chainSettings.band1Freq,
+                                                                                 chainSettings.band1Quality,
+                                                                                 juce::Decibels::decibelsToGain(chainSettings.band1GainInDecibles));
+    
+    auto band2Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                                                 chainSettings.band2Freq,
+                                                                                 chainSettings.band2Quality,
+                                                                                 juce::Decibels::decibelsToGain(chainSettings.band2GainInDecibles));
+
+    auto band3Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                                                 chainSettings.band3Freq,
+                                                                                 chainSettings.band3Quality,
+                                                                                 juce::Decibels::decibelsToGain(chainSettings.band3GainInDecibles));
+    
+    *leftChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
+    *rightChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
+    
+    *leftChain.get<ChainPositions::Band2>().coefficients = *band2Coefficients;
+    *rightChain.get<ChainPositions::Band2>().coefficients = *band2Coefficients;
+    
+    *leftChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
+    *rightChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
+    
     juce::dsp::AudioBlock<float> block(buffer);
     
     auto leftBlock = block.getSingleChannelBlock(0);
@@ -170,6 +223,8 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     // pass the context to filter chain for processing
     leftChain.process(leftContext);
     rightChain.process(rightContext);
+    
+//    std::cout << chainSettings.band1Freq;
 }
 
 //==============================================================================
@@ -199,6 +254,36 @@ void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBy
 }
 
 // MODIFIED by zyinmatrix
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
+{
+    ChainSettings settings;
+    // low/high cut frequency and slope
+    settings.lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
+    settings.highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
+    
+    settings.lowCutSlope = apvts.getRawParameterValue("LowCut Slope")->load();
+    settings.highCutSlope = apvts.getRawParameterValue("HighCut Slope")->load();
+    
+    // band 1 frequency, gain, and quality
+    settings.band1Freq = apvts.getRawParameterValue("Band1 Freq")->load();
+    settings.band1GainInDecibles= apvts.getRawParameterValue("Band1 Gain")->load();
+    settings.band1Quality = apvts.getRawParameterValue("Band1 Quality")->load();
+    
+    
+    // band 2 frequency, gain, and quality
+    settings.band2Freq = apvts.getRawParameterValue("Band2 Freq")->load();
+    settings.band2GainInDecibles= apvts.getRawParameterValue("Band2 Gain")->load();
+    settings.band2Quality = apvts.getRawParameterValue("Band2 Quality")->load();
+    
+    // band 3 frequency, gain, and quality
+    settings.band3Freq = apvts.getRawParameterValue("Band3 Freq")->load();
+    settings.band3GainInDecibles= apvts.getRawParameterValue("Band3 Gain")->load();
+    settings.band3Quality = apvts.getRawParameterValue("Band3 Quality")->load();
+ 
+    return settings;
+}
+
+
 juce::AudioProcessorValueTreeState::ParameterLayout
 SimpleEQAudioProcessor::createParameterLayout()
 {
@@ -207,21 +292,21 @@ SimpleEQAudioProcessor::createParameterLayout()
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     
     // low cut, high cut frequency
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("LowCut Freq", 1), "LowCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20.f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("HighCut Freq", 1), "HighCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20000.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("LowCut Freq", 1), "LowCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("HighCut Freq", 1), "HighCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20000.f));
     
     // band filter 1 frequency, gain, and quality
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band1 Freq", 1), "Band1 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 250.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band1 Freq", 1), "Band1 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 250.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band1 Gain", 1), "Band1 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band1 Quality", 1), "Band1 Quality", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
     
     // band filter 2 frequency, gain, and quality
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band2 Freq", 1), "Band2 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 2500.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band2 Freq", 1), "Band2 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 2500.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band2 Gain", 1), "Band2 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band2 Quality", 1), "Band2 Quality", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
     
     // band filter 3 frequency, gain, and quality
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band3 Freq", 1), "Band3 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 8000.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band3 Freq", 1), "Band3 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 8000.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band3 Gain", 1), "Band3 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Band3 Quality", 1), "Band3 Quality", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
     
