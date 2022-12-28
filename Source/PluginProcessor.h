@@ -80,11 +80,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    // MODIFIED by zyinmatrix
+// MODIFIED by zyinmatrix
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
 
 private:
+// MODIFIED by zyinmatrix
     using Filter = juce::dsp::IIR::Filter<float>;
     // use processor chain to conect filters
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
@@ -101,6 +102,9 @@ private:
       Band3,
       HighCut
     };
+    
+    void updateFilters(const ChainSettings chainSettings);
+    using Coefficients = Filter::CoefficientsPtr;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
