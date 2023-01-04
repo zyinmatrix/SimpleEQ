@@ -257,14 +257,15 @@ void SimpleEQAudioProcessor::updateFilters(const ChainSettings chainSettings)
                                                                                  chainSettings.band3Quality,
                                                                                  juce::Decibels::decibelsToGain(chainSettings.band3GainInDecibles));
     // set peak filter's coefficients
-    *leftChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
-    *rightChain.get<ChainPositions::Band1>().coefficients = *band1Coefficients;
+    updateCoefficients(leftChain.get<ChainPositions::Band1>().coefficients, band1Coefficients);
+    updateCoefficients(rightChain.get<ChainPositions::Band1>().coefficients, band1Coefficients);
     
-    *leftChain.get<ChainPositions::Band2>().coefficients = *band2Coefficients;
-    *rightChain.get<ChainPositions::Band2>().coefficients = *band2Coefficients;
+    updateCoefficients(leftChain.get<ChainPositions::Band2>().coefficients, band2Coefficients);
+    updateCoefficients(rightChain.get<ChainPositions::Band2>().coefficients, band2Coefficients);
     
-    *leftChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
-    *rightChain.get<ChainPositions::Band3>().coefficients = *band3Coefficients;
+    updateCoefficients(leftChain.get<ChainPositions::Band3>().coefficients, band3Coefficients);
+    updateCoefficients(rightChain.get<ChainPositions::Band3>().coefficients, band3Coefficients);
+
     
     // calculate cut filters' coefficients
     auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
@@ -351,6 +352,10 @@ void SimpleEQAudioProcessor::updateFilters(const ChainSettings chainSettings)
     }
 }
 
+void SimpleEQAudioProcessor::updateCoefficients(Coefficients &old, const Coefficients &replacements)
+{
+    *old = *replacements;
+}
 
 juce::AudioProcessorValueTreeState::ParameterLayout
 SimpleEQAudioProcessor::createParameterLayout()

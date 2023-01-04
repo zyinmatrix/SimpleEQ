@@ -105,6 +105,9 @@ private:
     
     void updateFilters(const ChainSettings chainSettings);
     using Coefficients = Filter::CoefficientsPtr;
+   
+    // does not use any member variables, so set it to static
+    static void updateCoefficients(Coefficients &old, const Coefficients &replacements);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
