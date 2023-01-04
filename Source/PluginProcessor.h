@@ -103,7 +103,7 @@ private:
       HighCut
     };
     
-    void updateFilters(const ChainSettings& chainSettings);
+    void updateFilters();
     using Coefficients = Filter::CoefficientsPtr;
    
     // does not use any member variables, so set it to static
