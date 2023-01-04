@@ -106,10 +106,7 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     leftChain.prepare(spec);
     rightChain.prepare(spec);
     
-    
-    auto chainSettings = getChainSettings(apvts);
-    
-    updateFilters(chainSettings);
+    updateFilters();
     
 }
 
@@ -161,10 +158,8 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    auto chainSettings = getChainSettings(apvts);
     
-    updateFilters(chainSettings);
+    updateFilters();
     
     juce::dsp::AudioBlock<float> block(buffer);
     
@@ -191,8 +186,8 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-//    return new SimpleEQAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new SimpleEQAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -239,9 +234,9 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     return settings;
 }
 
-void SimpleEQAudioProcessor::updateFilters(const ChainSettings& chainSettings)
+void SimpleEQAudioProcessor::updateFilters()
 {
-    
+    auto chainSettings = getChainSettings(apvts);
     updateBandFilters(chainSettings);
     updateLowCutFilter(chainSettings);
     updateHighCutFilter(chainSettings);
