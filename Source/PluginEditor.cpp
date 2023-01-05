@@ -11,7 +11,22 @@
 
 //==============================================================================
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p),
+band1FreqSliderAttachment(audioProcessor.apvts, "Band1 Freq", band1FreqSlider),
+band1GainSliderAttachment(audioProcessor.apvts, "Band1 Gain", band1GainSlider),
+band1QualitySliderAttachment(audioProcessor.apvts, "Band1 Quality", band1QualitySlider),
+band2FreqSliderAttachment(audioProcessor.apvts, "Band2 Freq", band2FreqSlider),
+band2GainSliderAttachment(audioProcessor.apvts, "Band2 Gain", band2GainSlider),
+band2QualitySliderAttachment(audioProcessor.apvts, "Band2 Quality", band2QualitySlider),
+band3FreqSliderAttachment(audioProcessor.apvts, "Band3 Freq", band3FreqSlider),
+band3GainSliderAttachment(audioProcessor.apvts, "Band3 Gain", band3GainSlider),
+band3QualitySliderAttachment(audioProcessor.apvts, "Band3 Quality", band3QualitySlider),
+lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
+lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
+highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
+highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider)
+
+
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
