@@ -33,6 +33,20 @@ struct ChainSettings
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
+using Filter = juce::dsp::IIR::Filter<float>;
+// use processor chain to conect filters
+using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+
+using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, Filter, CutFilter>;
+
+enum ChainPositions
+{
+  LowCut,
+  Band1,
+  Band2,
+  Band3,
+  HighCut
+};
 
 //==============================================================================
 /**
@@ -86,22 +100,8 @@ public:
 
 private:
 // MODIFIED by zyinmatrix
-    using Filter = juce::dsp::IIR::Filter<float>;
-    // use processor chain to conect filters
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-    
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, Filter, CutFilter>;
     
     MonoChain leftChain, rightChain;
-    
-    enum ChainPositions
-    {
-      LowCut,
-      Band1,
-      Band2,
-      Band3,
-      HighCut
-    };
     
     void updateFilters();
     using Coefficients = Filter::CoefficientsPtr;
