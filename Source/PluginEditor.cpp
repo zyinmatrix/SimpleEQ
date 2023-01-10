@@ -12,19 +12,19 @@
 //==============================================================================
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
-band1FreqSliderAttachment(audioProcessor.apvts, "Band1 Freq", band1FreqSlider),
-band1GainSliderAttachment(audioProcessor.apvts, "Band1 Gain", band1GainSlider),
-band1QualitySliderAttachment(audioProcessor.apvts, "Band1 Quality", band1QualitySlider),
-band2FreqSliderAttachment(audioProcessor.apvts, "Band2 Freq", band2FreqSlider),
-band2GainSliderAttachment(audioProcessor.apvts, "Band2 Gain", band2GainSlider),
-band2QualitySliderAttachment(audioProcessor.apvts, "Band2 Quality", band2QualitySlider),
-band3FreqSliderAttachment(audioProcessor.apvts, "Band3 Freq", band3FreqSlider),
-band3GainSliderAttachment(audioProcessor.apvts, "Band3 Gain", band3GainSlider),
-band3QualitySliderAttachment(audioProcessor.apvts, "Band3 Quality", band3QualitySlider),
-lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
-lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
-highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
-highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider)
+band1FreqSliderAttachment(audioProcessor.getAPVTS(), "Band1 Freq", band1FreqSlider),
+band1GainSliderAttachment(audioProcessor.getAPVTS(), "Band1 Gain", band1GainSlider),
+band1QualitySliderAttachment(audioProcessor.getAPVTS(), "Band1 Quality", band1QualitySlider),
+band2FreqSliderAttachment(audioProcessor.getAPVTS(), "Band2 Freq", band2FreqSlider),
+band2GainSliderAttachment(audioProcessor.getAPVTS(), "Band2 Gain", band2GainSlider),
+band2QualitySliderAttachment(audioProcessor.getAPVTS(), "Band2 Quality", band2QualitySlider),
+band3FreqSliderAttachment(audioProcessor.getAPVTS(), "Band3 Freq", band3FreqSlider),
+band3GainSliderAttachment(audioProcessor.getAPVTS(), "Band3 Gain", band3GainSlider),
+band3QualitySliderAttachment(audioProcessor.getAPVTS(), "Band3 Quality", band3QualitySlider),
+lowCutFreqSliderAttachment(audioProcessor.getAPVTS(), "LowCut Freq", lowCutFreqSlider),
+lowCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "LowCut Slope", lowCutSlopeSlider),
+highCutFreqSliderAttachment(audioProcessor.getAPVTS(), "HighCut Freq", highCutFreqSlider),
+highCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "HighCut Slope", highCutSlopeSlider)
 
 
 {
@@ -173,6 +173,23 @@ void SimpleEQAudioProcessorEditor::resized()
 }
 
 // MODIFIED by zyinmatrix
+void SimpleEQAudioProcessorEditor::parameterValueChanged(int parameterIndex, float newValue)
+{
+    parametersChanged.set(true);
+}
+
+void SimpleEQAudioProcessorEditor::timerCallback()
+{
+    if ( parametersChanged.compareAndSetBool(false, true) )
+    {
+        //update the monochain
+        
+        
+        //signal a repaint
+        repaint();
+    }
+}
+
 std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
 {
     return

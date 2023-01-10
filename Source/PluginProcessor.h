@@ -95,11 +95,13 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
 // MODIFIED by zyinmatrix
-    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
+    juce::AudioProcessorValueTreeState& getAPVTS() {return apvts;}
+
 
 private:
 // MODIFIED by zyinmatrix
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
     
     MonoChain leftChain, rightChain;
     

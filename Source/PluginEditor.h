@@ -26,7 +26,9 @@ struct CustomRotarySlider : juce::Slider
 //==============================================================================
 /**
 */
-class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor
+class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor,
+                                      public juce::AudioProcessorParameter::Listener,
+                                      public juce::Timer
 {
 public:
     SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor&);
@@ -35,6 +37,13 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    
+    void parameterValueChanged (int parameterIndex, float newValue) override;
+    
+    void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override {} ;
+    
+    void timerCallback() override;
+    
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -42,6 +51,8 @@ private:
     SimpleEQAudioProcessor& audioProcessor;
     
 // MODIFIED by zyinmatrix
+    juce::Atomic<bool> parametersChanged {false};
+    
     // Create sliders
     CustomRotarySlider band1FreqSlider, band1GainSlider, band1QualitySlider,
     band2FreqSlider, band2GainSlider, band2QualitySlider,
