@@ -244,7 +244,32 @@ void SimpleEQAudioProcessor::updateFilters()
     
 }
 
-void SimpleEQAudioProcessor::updateCoefficients(Coefficients &old, const Coefficients &replacements)
+Coefficients makeBand1Filter(const ChainSettings& chainSettings, double sampleRate)
+{
+    return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                               chainSettings.band1Freq,
+                                                               chainSettings.band1Quality,
+                                                               juce::Decibels::decibelsToGain(chainSettings.band1GainInDecibles));
+}
+
+Coefficients makeBand2Filter(const ChainSettings& chainSettings, double sampleRate)
+{
+    return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                               chainSettings.band2Freq,
+                                                               chainSettings.band2Quality,
+                                                               juce::Decibels::decibelsToGain(chainSettings.band2GainInDecibles));
+}
+
+Coefficients makeBand3Filter(const ChainSettings& chainSettings, double sampleRate)
+{
+    return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                               chainSettings.band3Freq,
+                                                               chainSettings.band3Quality,
+                                                               juce::Decibels::decibelsToGain(chainSettings.band3GainInDecibles));
+}
+
+
+void /*SimpleEQAudioProcessor::*/updateCoefficients(Coefficients &old, const Coefficients &replacements)
 {
     *old = *replacements;
 }
@@ -253,20 +278,12 @@ void SimpleEQAudioProcessor::updateCoefficients(Coefficients &old, const Coeffic
 void SimpleEQAudioProcessor::updateBandFilters(const ChainSettings &chainSettings)
 {
     // calculate peak filters' coefficients
-    auto band1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                                 chainSettings.band1Freq,
-                                                                                 chainSettings.band1Quality,
-                                                                                 juce::Decibels::decibelsToGain(chainSettings.band1GainInDecibles));
+    auto band1Coefficients = makeBand1Filter(chainSettings, getSampleRate());
     
-    auto band2Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                                 chainSettings.band2Freq,
-                                                                                 chainSettings.band2Quality,
-                                                                                 juce::Decibels::decibelsToGain(chainSettings.band2GainInDecibles));
+    auto band2Coefficients = makeBand2Filter(chainSettings, getSampleRate());
 
-    auto band3Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                                 chainSettings.band3Freq,
-                                                                                 chainSettings.band3Quality,
-                                                                                 juce::Decibels::decibelsToGain(chainSettings.band3GainInDecibles));
+    auto band3Coefficients = makeBand3Filter(chainSettings, getSampleRate());
+    
     // set peak filter's coefficients
     updateCoefficients(leftChain.get<ChainPositions::Band1>().coefficients, band1Coefficients);
     updateCoefficients(rightChain.get<ChainPositions::Band1>().coefficients, band1Coefficients);

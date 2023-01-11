@@ -48,6 +48,14 @@ enum ChainPositions
   HighCut
 };
 
+using Coefficients = Filter::CoefficientsPtr;
+// does not use any member variables, so set it to static
+void updateCoefficients(Coefficients &old, const Coefficients &replacements);
+
+Coefficients makeBand1Filter(const ChainSettings& chainSettings, double sampleRate);
+Coefficients makeBand2Filter(const ChainSettings& chainSettings, double sampleRate);
+Coefficients makeBand3Filter(const ChainSettings& chainSettings, double sampleRate);
+
 //==============================================================================
 /**
 */
@@ -106,10 +114,7 @@ private:
     MonoChain leftChain, rightChain;
     
     void updateFilters();
-    using Coefficients = Filter::CoefficientsPtr;
-   
-    // does not use any member variables, so set it to static
-    static void updateCoefficients(Coefficients &old, const Coefficients &replacements);
+    
     
 
     template<int Index, typename ChainType, typename CoefficientType>
