@@ -295,18 +295,7 @@ void SimpleEQAudioProcessor::updateBandFilters(const ChainSettings &chainSetting
     updateCoefficients(rightChain.get<ChainPositions::Band3>().coefficients, band3Coefficients);
 }
 
-//auto makeLowCutFilter(const ChainSettings& chainSettings, double sampleRate)
-//{
-//    return juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
-//                                                                                      sampleRate,
-//                                                                                      2 * (chainSettings.lowCutSlope+1));
-//}
-//auto makeHighCutFilter(const ChainSettings& chainSettings, double sampleRate)
-//{
-//    return juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq,
-//                                                                                      sampleRate,
-//                                                                                      2 * (chainSettings.highCutSlope+1));
-//}
+
 
 void SimpleEQAudioProcessor::updateLowCutFilter(const ChainSettings &chainSettings)
 {

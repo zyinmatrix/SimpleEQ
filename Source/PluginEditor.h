@@ -12,7 +12,7 @@
 #include "PluginProcessor.h"
 
 // MODIFIED by zyinmatrix
-// Create a structure for our custom sliders
+/* structure for custom sliders */
 struct CustomRotarySlider : juce::Slider
 {
     CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
@@ -23,12 +23,33 @@ struct CustomRotarySlider : juce::Slider
     
 };
 
+/* structure for response curve */
+struct ResponseCurveComponent : juce::Component,
+juce::AudioProcessorParameter::Listener,
+juce::Timer
+{
+    ResponseCurveComponent(SimpleEQAudioProcessor&);
+    ~ResponseCurveComponent();
+    
+    void parameterValueChanged (int parameterIndex, float newValue) override;
+    
+    void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override {} ;
+    
+    void timerCallback() override;
+    
+    void paint (juce::Graphics&) override;
+    
+private:
+    SimpleEQAudioProcessor& audioProcessor;
+    MonoChain monoChain;
+    juce::Atomic<bool> parametersChanged {false};
+};
+
 //==============================================================================
 /**
 */
-class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                      public juce::AudioProcessorParameter::Listener,
-                                      public juce::Timer
+class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor
+                                      
 {
 public:
     SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor&);
@@ -37,12 +58,7 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-    
-    void parameterValueChanged (int parameterIndex, float newValue) override;
-    
-    void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override {} ;
-    
-    void timerCallback() override;
+
     
 
 private:
@@ -51,7 +67,7 @@ private:
     SimpleEQAudioProcessor& audioProcessor;
     
 // MODIFIED by zyinmatrix
-    juce::Atomic<bool> parametersChanged {false};
+    ResponseCurveComponent responseCurveComponent;
     
     // Create sliders
     CustomRotarySlider band1FreqSlider, band1GainSlider, band1QualitySlider,
@@ -71,7 +87,7 @@ private:
     
     std::vector<juce::Component*> getComps();
     
-    MonoChain monoChain;
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessorEditor)
 };
