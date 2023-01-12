@@ -207,8 +207,14 @@ void SimpleEQAudioProcessorEditor::timerCallback()
         updateCoefficients(monoChain.get<Band1>().coefficients, band1Coefficients);
         updateCoefficients(monoChain.get<Band2>().coefficients, band2Coefficients);
         updateCoefficients(monoChain.get<Band3>().coefficients, band3Coefficients);
-    
         
+        // calculate cut filters' coefficients
+        auto lowCutCoefficients = makeLowCutFilter( chainSettings, sampleRate);
+        auto highCutCoefficients = makeHighCutFilter( chainSettings, sampleRate);
+        // update low cut filter chains
+        updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
+    
         //signal a repaint
         repaint();
     }
