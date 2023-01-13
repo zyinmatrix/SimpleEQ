@@ -12,14 +12,46 @@
 #include "PluginProcessor.h"
 
 // MODIFIED by zyinmatrix
-/* structure for custom sliders */
-struct CustomRotarySlider : juce::Slider
+
+/* LookAndFeel struct for RotarySliderWithLabels */
+struct LookAndFeel : juce::LookAndFeel_V4
 {
-    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-                                        juce::Slider::TextEntryBoxPosition::NoTextBox)
+    virtual void drawRotarySlider (juce::Graphics&,
+                                   int x, int y, int width, int height,
+                                   float sliderPosProportional,
+                                   float rotaryStartAngle,
+                                   float rotaryEndAngle,
+                                   juce::Slider&) override {}
+};
+
+
+/* struct for custom sliders */
+struct RotarySliderWithLabels : juce::Slider
+{
+    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+                                        juce::Slider::TextEntryBoxPosition::NoTextBox),
+    param(&rap),
+    suffix(unitSuffix)
     {
-        
+        setLookAndFeel(&lnf);
     }
+    
+    ~RotarySliderWithLabels()
+    {
+        setLookAndFeel(nullptr);
+    }
+    
+    void paint(juce::Graphics& g) override {};
+    juce::Rectangle<int> getSliderBounds() const;
+    int getTextHeight() const { return 14; }
+    juce::String getDisplayString() const;
+    
+private:
+    LookAndFeel lnf;
+    juce::RangedAudioParameter* param;
+    juce::String suffix;
+    
+    
     
 };
 
@@ -70,7 +102,7 @@ private:
     ResponseCurveComponent responseCurveComponent;
     
     // Create sliders
-    CustomRotarySlider band1FreqSlider, band1GainSlider, band1QualitySlider,
+    RotarySliderWithLabels band1FreqSlider, band1GainSlider, band1QualitySlider,
     band2FreqSlider, band2GainSlider, band2QualitySlider,
     band3FreqSlider, band3GainSlider, band3QualitySlider,
     lowCutFreqSlider, lowCutSlopeSlider,
