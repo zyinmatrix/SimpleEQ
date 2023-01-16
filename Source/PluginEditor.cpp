@@ -111,7 +111,46 @@ juce::Rectangle<float> RotarySliderWithLabels::getSliderBounds() const
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
-    return juce::String(getValue());
+//    return juce::String(getValue());
+    
+    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
+        return choiceParam->getCurrentChoiceName();
+    
+    juce::String str;
+    bool addK = false;
+    
+    if (auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
+    {
+        // if over 1000
+            // devide by 1000
+            // addK = true
+        float val = getValue();
+        if (val >= 1000.f)
+        {
+            val /= 1000.f;
+            addK = true;
+        }
+        
+        // do not display value after decimal point
+        val = int(val);
+        
+        str = juce::String(val, 0);
+    }
+    else
+    {
+        jassertfalse; // this should not happen!
+    }
+    
+    // add suffix
+    if (suffix.isNotEmpty())
+    {
+        str << " ";
+        if (addK)
+            str << "k";
+        str << suffix;
+    }
+    
+    return str;
 }
 
 //==============================================================================
@@ -298,7 +337,7 @@ highCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "HighCut Slope", highCut
     }
     
     
-    setSize (630, 360);
+    setSize (630, 396);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
@@ -313,6 +352,8 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
 //    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
     g.fillAll (juce::Colour(31u, 31u, 36u));
+//    g.fillAll (juce::Colour(47u, 50u, 57u));
+//    g.fillAll (juce::Colour(27u, 27u, 36u));
     
     
     
