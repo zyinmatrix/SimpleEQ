@@ -51,13 +51,25 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
     auto endAng = juce::degreesToRadians(135.f);
     
     auto range = getRange();
+    auto rangeWithSkew = juce::NormalisableRange<float>(range.getStart(), range.getEnd(), 1.f, 0.25f);
     auto sliderBounds = getSliderBounds();
     
-    getLookAndFeel().drawRotarySlider(g,
-                                      sliderBounds.getX(), sliderBounds.getY(),
-                                      sliderBounds.getWidth(), sliderBounds.getHeight(),
-                                      juce::jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
-                                      startAng, endAng, *this);
+    
+    if(suffix=="Hz")
+    {
+        getLookAndFeel().drawRotarySlider(g,
+                                          sliderBounds.getX(), sliderBounds.getY(),
+                                          sliderBounds.getWidth(), sliderBounds.getHeight(),
+                                          rangeWithSkew.convertTo0to1(getValue()),
+                                          startAng, endAng, *this);
+    }
+    else {
+        getLookAndFeel().drawRotarySlider(g,
+                                          sliderBounds.getX(), sliderBounds.getY(),
+                                          sliderBounds.getWidth(), sliderBounds.getHeight(),
+                                          juce::jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
+                                          startAng, endAng, *this);
+    }
     
 }
 
@@ -221,6 +233,7 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
 
+responseCurveComponent(audioProcessor),
 band1FreqSlider(*audioProcessor.getAPVTS().getParameter("Band1 Freq"), "Hz"),
 band1GainSlider(*audioProcessor.getAPVTS().getParameter("Band1 Gain"), "dB"),
 band1QualitySlider(*audioProcessor.getAPVTS().getParameter("Band1 Quality"), ""),
@@ -234,7 +247,6 @@ lowCutFreqSlider(*audioProcessor.getAPVTS().getParameter("LowCut Freq"), "Hz"),
 lowCutSlopeSlider(*audioProcessor.getAPVTS().getParameter("LowCut Slope"), "dB/Oct"),
 highCutFreqSlider(*audioProcessor.getAPVTS().getParameter("HighCut Freq"), "Hz"),
 highCutSlopeSlider(*audioProcessor.getAPVTS().getParameter("HighCut Slope"), "dB/Oct"),
-responseCurveComponent(audioProcessor),
 band1FreqSliderAttachment(audioProcessor.getAPVTS(), "Band1 Freq", band1FreqSlider),
 band1GainSliderAttachment(audioProcessor.getAPVTS(), "Band1 Gain", band1GainSlider),
 band1QualitySliderAttachment(audioProcessor.getAPVTS(), "Band1 Quality", band1QualitySlider),
