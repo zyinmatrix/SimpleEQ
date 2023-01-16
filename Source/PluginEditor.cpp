@@ -83,8 +83,7 @@ juce::Rectangle<float> RotarySliderWithLabels::getSliderBounds() const
     
     juce::Rectangle<float> r;
     r.setSize(size, size);
-    r.setCentre(bounds.getCentreX(), bounds.getCentreY());
-//    r.setY(2);
+    r.setCentre(bounds.getCentreX(), 0);
     
     return r;
 }
@@ -303,6 +302,8 @@ void SimpleEQAudioProcessorEditor::resized()
     // reserve area for frequency analyser
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.36);
     responseCurveComponent.setBounds(responseArea);
+    
+    auto space1 = bounds.removeFromTop(bounds.getHeight() * 0.081);
     
     // reserve area for cut filters
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 1/5);
