@@ -35,10 +35,10 @@ void LookAndFeel::drawRotarySlider (juce::Graphics& g,
     r.setTop(bounds.getY());
     r.setBottom(center.getY());
     
-    p.addRectangle(r);
+    p.addRoundedRectangle(r, 2.f);
     
     jassert(rotaryStartAngle < rotaryEndAngle);
-    auto sliderAngRad = juce::jmap(sliderPosProportional, 0.0f, 1.0f, rotaryStartAngle, rotaryEndAngle);
+    auto sliderAngRad = juce::jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
     p.applyTransform(juce::AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
    
     g.fillPath(p);
@@ -61,9 +61,20 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
     
 }
 
-juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
+juce::Rectangle<float> RotarySliderWithLabels::getSliderBounds() const
 {
-    return getLocalBounds();
+    auto bounds = getLocalBounds();
+    
+    auto size = juce::jmin(bounds.getWidth(), bounds.getHeight());
+    
+    size -= getTextHeight() * 2;
+    
+    juce::Rectangle<float> r;
+    r.setSize(size, size);
+    r.setCentre(bounds.getCentreX(), bounds.getCentreY());
+//    r.setY(2);
+    
+    return r;
 }
 //==============================================================================
 
@@ -263,7 +274,7 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     
     // (Our component is opaque, so we must completely fill the background with a solid colour)
 //    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    g.fillAll (juce::Colours::black);
+    g.fillAll (juce::Colour(31u, 31u, 36u));
     
     
     
