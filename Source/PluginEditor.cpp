@@ -196,7 +196,10 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     const double outputMax = responseArea.getY();
     auto map = [outputMin, outputMax](double input)
     {
-        return juce::jmap(input, -24.0, 24.0, outputMin, outputMax);
+        auto magnitude = input;
+        if (magnitude > 24) magnitude = 24;
+        else if (magnitude < -24) magnitude = -24;
+        return juce::jmap(magnitude, -24.0, 24.0, outputMin, outputMax);
     };
     
     responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
