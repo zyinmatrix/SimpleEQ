@@ -343,9 +343,9 @@ void ResponseCurveComponent::resized()
     // Array for frequency and gain
     juce::Array<float> freqs
     {
-        20, 30, 40, 50, 100,
-        200, 300, 400, 500, 1000,
-        2000, 3000, 4000, 5000, 10000,
+        20, /*30, 40,*/ 50, 100,
+        200, /*300, 400,*/ 500, 1000,
+        2000, /*3000, 4000,*/ 5000, 10000,
         20000
     };
     juce::Array<float> gains
@@ -363,9 +363,11 @@ void ResponseCurveComponent::resized()
     auto width = analysisArea.getWidth();
     
     juce::Array<float> normXs;
+    juce::Array<float> normYs;
+    
     for (auto f: freqs)
     {
-        auto normX = juce::mapFromLog10(f, 20.f, 20001.f);
+        auto normX = juce::mapFromLog10(f, 20.f, 20000.f);
         g.drawVerticalLine(left + width * normX, top, bottom); // draw vertial lines
         
         normXs.add(left + width * normX); // store X coordinates for freq labels
@@ -373,8 +375,72 @@ void ResponseCurveComponent::resized()
 
     for (auto gain : gains)
     {
-        auto y = juce::jmap(gain, -24.1f, 24.f, float(bottom), float(top));
+        auto y = juce::jmap(gain, -24.f, 24.f, float(bottom), float(top));
         g.drawHorizontalLine(y, float(left), float(right)); // draw horizontal lines
+        
+        normYs.add(y);
+    }
+    
+    // draw freq labels for grid
+    const int fontHeight = 10;
+    g.setFont(fontHeight);
+    g.setColour(juce::Colour(138u, 190u, 110u));
+    
+    for (int i = 0; i < freqs.size(); ++i)
+    {
+        juce::String str;
+        auto f = freqs[i];
+        auto x = normXs[i];
+        bool addK = false;
+        
+        if (f >= 1000.f)
+        {
+            f /= 1000.f;
+            addK = true;
+        }
+
+        str << f;
+        if (addK) str << "k";
+        str << "Hz";
+        
+        auto textWidth = g.getCurrentFont().getStringWidth(str);
+        juce::Rectangle<int> r;
+        
+        r.setSize(textWidth, fontHeight);
+        r.setCentre(x, 0);
+        r.setY(2);
+        
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
+    }
+    
+    // draw gain labels for grid
+    for (int i = 0; i < gains.size(); ++i)
+    {
+        juce::String str;
+        auto gain = gains[i];
+        auto y = normYs[i];
+        
+        if (gain > 0) str << "+";
+        str << gain;
+        
+        auto textWidth = g.getCurrentFont().getStringWidth(str);
+        juce::Rectangle<int> r;
+        
+        r.setSize(textWidth, fontHeight);
+        r.setCentre(0, y);
+        r.setX(getWidth() - textWidth - 3);
+    
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
+        
+        str.clear();
+        str << gain-24;
+        textWidth = g.getCurrentFont().getStringWidth(str);
+        
+        r.setSize(textWidth, fontHeight);
+        r.setCentre(0, y);
+        r.setX(3);
+    
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
     }
     
 //    g.drawRect(getLocalBounds());
@@ -386,9 +452,9 @@ juce::Rectangle<int> ResponseCurveComponent::getRenderArea()
     
 //    bounds.reduce(12, 9);
     bounds.removeFromTop(15);
-    bounds.removeFromBottom(2);
-    bounds.removeFromLeft(20);
-    bounds.removeFromRight(20);
+    bounds.removeFromBottom(3);
+    bounds.removeFromLeft(24);
+    bounds.removeFromRight(24);
     
     return bounds;
 }
