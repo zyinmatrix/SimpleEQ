@@ -195,7 +195,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p)
     {
         param->addListener(this);
     }
-    
+    updateCurve();
     startTimerHz(30);
 }
 ResponseCurveComponent::~ResponseCurveComponent()
@@ -218,28 +218,34 @@ void ResponseCurveComponent::timerCallback()
     if ( parametersChanged.compareAndSetBool(false, true) )
     {
 //        DBG( "params changed " );
-        auto chainSettings = getChainSettings(audioProcessor.getAPVTS());
-        auto sampleRate = audioProcessor.getSampleRate();
-        //update coefficients
-        auto band1Coefficients = makeBand1Filter(chainSettings, sampleRate);
-        auto band2Coefficients = makeBand2Filter(chainSettings, sampleRate);
-        auto band3Coefficients = makeBand3Filter(chainSettings, sampleRate);
+        updateCurve();
         
-        updateCoefficients(monoChain.get<Band1>().coefficients, band1Coefficients);
-        updateCoefficients(monoChain.get<Band2>().coefficients, band2Coefficients);
-        updateCoefficients(monoChain.get<Band3>().coefficients, band3Coefficients);
-        
-        // calculate cut filters' coefficients
-        auto lowCutCoefficients = makeLowCutFilter( chainSettings, sampleRate);
-        auto highCutCoefficients = makeHighCutFilter( chainSettings, sampleRate);
-        // update low cut filter chains
-        updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
-        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
-    
         //signal a repaint
         repaint();
     }
 }
+
+void ResponseCurveComponent::updateCurve()
+{
+    auto chainSettings = getChainSettings(audioProcessor.getAPVTS());
+    auto sampleRate = audioProcessor.getSampleRate();
+    //update coefficients
+    auto band1Coefficients = makeBand1Filter(chainSettings, sampleRate);
+    auto band2Coefficients = makeBand2Filter(chainSettings, sampleRate);
+    auto band3Coefficients = makeBand3Filter(chainSettings, sampleRate);
+    
+    updateCoefficients(monoChain.get<Band1>().coefficients, band1Coefficients);
+    updateCoefficients(monoChain.get<Band2>().coefficients, band2Coefficients);
+    updateCoefficients(monoChain.get<Band3>().coefficients, band3Coefficients);
+    
+    // calculate cut filters' coefficients
+    auto lowCutCoefficients = makeLowCutFilter( chainSettings, sampleRate);
+    auto highCutCoefficients = makeHighCutFilter( chainSettings, sampleRate);
+    // update low cut filter chains
+    updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+    updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
+}
+
 void ResponseCurveComponent::paint (juce::Graphics& g)
 {
 
@@ -409,7 +415,7 @@ highCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "HighCut Slope", highCut
     }
     
     int seed = 45;
-    setSize (16*seed, 9*seed);
+    setSize (15*seed, 9*seed);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
