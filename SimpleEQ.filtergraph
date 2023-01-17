@@ -5,7 +5,7 @@
     <PLUGIN name="Audio Input" descriptiveName="" format="Internal" category="I/O devices"
             manufacturer="JUCE" version="1.0" file="" uniqueId="246006c0"
             isInstrument="0" fileTime="0" infoUpdateTime="0" numInputs="0"
-            numOutputs="10" isShell="0" hasARAExtension="0" uid="246006c0"/>
+            numOutputs="2" isShell="0" hasARAExtension="0" uid="246006c0"/>
     <STATE>0.</STATE>
     <LAYOUT>
       <INPUTS>
@@ -39,7 +39,7 @@
     <STATE>0.</STATE>
     <LAYOUT>
       <INPUTS>
-        <BUS index="0" layout="1 2 3 4 5 6 7 8 9 10"/>
+        <BUS index="0" layout="L R"/>
       </INPUTS>
       <OUTPUTS>
         <BUS index="0" layout="disabled"/>
@@ -62,12 +62,12 @@
     </LAYOUT>
   </FILTER>
   <FILTER uid="5" x="0.425" y="0.45" useARA="0" uiLastX_Normal="1485" uiLastY_Normal="536"
-          uiopen_Normal="0">
+          uiopen_Normal="1">
     <PLUGIN name="SimpleEQ" format="AudioUnit" category="Effect" manufacturer="yourcompany"
             version="1.0.0" file="AudioUnit:Effects/aufx,N1bl,Manu" uniqueId="62256a61"
-            isInstrument="0" fileTime="0" infoUpdateTime="18550c36030" numInputs="2"
+            isInstrument="0" fileTime="0" infoUpdateTime="185bfc82f25" numInputs="2"
             numOutputs="2" isShell="0" hasARAExtension="0" uid="62256a61"/>
-    <STATE>309.hAGaoMGcv.y0AHv.DTfAGfPBJHwDTTAWsEla0YVXiQWcxUlbTQVXzEFWkwVYsUlaz0hag0VYWMWchQWdvU1U1Ulbyk1atQEc4AWYT4VXsUlDMEla08DDzA..............M.yhsn......1PUh6zittvnRXhOO8nqKLtzCWxKO7n4wK8.yC+C....SDC2V83OMJyDwkJ1O....NkGR56Cy9QgS44W.+....3UEpsH.....d08Y8zittvXXOFQV.....X1Fki4O.B..Ru.CM.QTwDkLQ6vCQASUI4Fb0QWzNDgUOUGcvUGcR3TLhwFD.HQX0YFdXUkazkFcrUFYHbAIoXiOFsDTUwbzSWM1ZC93p+d71C.......DP..........XA...................v+</STATE>
+    <STATE>949.hAGaoMGcv.C1AHv.DTfAGfPBJrvDTTgEWvUag4VclE1XzUmbkIGUjEFcgwUYrUVak4Fcs3VXsU1UyUmXzkGbkckckI2bo8laTQWdvU1WP7fZ0MVYPwVcmklaSQWXzUFUtEVakIQSg4VcOAAc..............PCvrXKJ.....fMTk3N8nqKLpDl3ySO55BiK8vk75yo01xROv7v+....vDwvs0OWL+eLQboh8C...fS4gj9+rzfJ4Td9EvO....dUgZKB....fWceVO8nqKLF1iQjE.....lsQ4X9Cf..fzLzfCQDULQISzO.QTvTURtAWczE8CRX0S0QGb0QmDNEiXrAA.RDVclg2SQHfSPElbg0VYzUlbyA..Az.TAIUPMAP.BjFY.D.CEHTXtQVLfXjbkEG.1EFa0UF.Aj.A.......PuAD.PEjTA0D.AHPZjAP.LTfPg4FYw.xQgkla.XWXrUWY.DPBD.............UPRETS.Df.oQF.A7PABElajECHQUWXrkFc4AfcgwVckAP.IP.........7+..TAIUPMAP.BjFY.D.CEHTXtQlLfXjbkEG.1EFa0UF.Aj.A.......hiBD.PEjTA0D.AHPZjAP.LTfPg4FYx.xQgkla.XWXrUWY.DPBD.............UPRETS.Df.oQF.A7PABElajICHQUWXrkFc4AfcgwVckAP.IP.........7+..TAIUPMAP.BjFY.D.CEHTXtQ1LfXjbkEG.1EFa0UF.Aj.A.......P+BD.PEjTA0D.AHPZjAP.LTfPg4FYy.xQgkla.XWXrUWY.DPBD.............UPRETS.Df.oQF.A7PABElajMCHQUWXrkFc4AfcgwVckAP.IP.........7+..TAIUPMAP.BjFY.DfCEfTZmg1P0QGHFIWYwAfcgwVckAP.IP.......f3z.A.TAIUPMAP.BjFY.DvCEfTZmg1P0QGHSw1avUF.1EFa0UF.Aj.A............PEjTA0D.AHPZjAP.MT.Suc2P0QGHFIWYwAfcgwVckAP.IP.........M.A.TAIUPMAP.BjFY.DfCEvza2MTczAxTr8FbkAfcgwVckAP.IP.............VU4FcoQGakQF.H.PF.XB.q..N..D.HAPS.7E.jAPZ..N.kCv4.jN.rCf6.PO.2Cf+ALP.EDfBCvE.......f.A..........F..................v.kA</STATE>
     <LAYOUT>
       <INPUTS>
         <BUS index="0" layout="L R"/>
