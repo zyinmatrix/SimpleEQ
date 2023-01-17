@@ -58,9 +58,6 @@ private:
     LookAndFeel lnf;
     juce::RangedAudioParameter* param;
     juce::String suffix;
-    
-    
-    
 };
 
 /* structure for response curve */
@@ -91,6 +88,7 @@ private:
     juce::Image background;
     
     juce::Rectangle<int> getRenderArea();
+    juce::Rectangle<int> getAnalysisArea();
 };
 
 //==============================================================================

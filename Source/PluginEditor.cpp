@@ -248,11 +248,12 @@ void ResponseCurveComponent::updateCurve()
 
 void ResponseCurveComponent::paint (juce::Graphics& g)
 {
-    auto responseArea = getRenderArea();
+//    auto responseArea = getRenderArea();
+    auto responseArea = getAnalysisArea();
     auto w = responseArea.getWidth();
     
     // draw background grid
-    g.drawImage(background, responseArea.toFloat());
+    g.drawImage(background, getLocalBounds().toFloat());
     
     // get chain element
     auto& lowcut = monoChain.get<ChainPositions::LowCut>();
@@ -312,8 +313,8 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     auto map = [outputMin, outputMax](double input)
     {
         auto magnitude = input;
-        if (magnitude > 24) magnitude = 24;
-        else if (magnitude < -24) magnitude = -24;
+//        if (magnitude > 24) magnitude = 24;
+//        else if (magnitude < -24) magnitude = -24;
         return juce::jmap(magnitude, -24.0, 24.0, outputMin, outputMax);
     };
     
@@ -327,7 +328,7 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     
     g.setColour (juce::Colours::white);
     g.strokePath(responseCurve, juce::PathStrokeType(2.f));
-    g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
+    g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
 }
 
 void ResponseCurveComponent::resized()
@@ -339,38 +340,66 @@ void ResponseCurveComponent::resized()
 //    g.setColour(juce::Colour(176u, 250u, 235u));
     g.setColour(juce::Colour(163u, 230u, 216u));
 
-    // draw virtical lines for frequency
+    // Array for frequency and gain
     juce::Array<float> freqs
     {
-        30, 40, 50, 100,
+        20, 30, 40, 50, 100,
         200, 300, 400, 500, 1000,
         2000, 3000, 4000, 5000, 10000,
+        20000
     };
-    for (auto f: freqs)
-    {
-        auto normX = juce::mapFromLog10(f, 20.f, 20000.f);
-        g.drawVerticalLine(getWidth() * normX, 0, getHeight());
-    }
-    
-    // draw horizontal lines for gain
     juce::Array<float> gains
     {
-        -12, 0, 12
+        -24, -12, 0, 12, 24
     };
     
+    // Get areas
+    auto renderArea = getRenderArea();
+    auto analysisArea = getAnalysisArea();
+    auto top = analysisArea.getY();
+    auto bottom = analysisArea.getBottom();
+    auto left = analysisArea.getX();
+    auto right = analysisArea.getRight();
+    auto width = analysisArea.getWidth();
+    
+    juce::Array<float> normXs;
+    for (auto f: freqs)
+    {
+        auto normX = juce::mapFromLog10(f, 20.f, 20001.f);
+        g.drawVerticalLine(left + width * normX, top, bottom); // draw vertial lines
+        
+        normXs.add(left + width * normX); // store X coordinates for freq labels
+    }
+
     for (auto gain : gains)
     {
-        auto y = juce::jmap(gain, -24.f, 24.f, float(getHeight()), 0.f);
-        g.drawHorizontalLine(y, 0, getWidth());
+        auto y = juce::jmap(gain, -24.1f, 24.f, float(bottom), float(top));
+        g.drawHorizontalLine(y, float(left), float(right)); // draw horizontal lines
     }
+    
+//    g.drawRect(getLocalBounds());
 }
 
 juce::Rectangle<int> ResponseCurveComponent::getRenderArea()
 {
     auto bounds = getLocalBounds();
     
-    bounds.reduce(12, 9);
+//    bounds.reduce(12, 9);
+    bounds.removeFromTop(15);
+    bounds.removeFromBottom(2);
+    bounds.removeFromLeft(20);
+    bounds.removeFromRight(20);
     
+    return bounds;
+}
+
+juce::Rectangle<int> ResponseCurveComponent::getAnalysisArea()
+{
+    auto bounds = getRenderArea();
+    bounds.removeFromTop(2);
+    bounds.removeFromBottom(2);
+    bounds.removeFromLeft(2);
+    bounds.removeFromRight(2);
     return bounds;
 }
 
