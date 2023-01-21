@@ -182,11 +182,75 @@ juce::String RotarySliderWithLabels::getDisplayString() const
 }
 
 //==============================================================================
+void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
+{
+    juce::AudioBuffer<float> tempIncomingBuffer;
+    
+    while (channelFifo->getNumCompleteBuffersAvailable() > 0)
+    {
+        if (channelFifo->getAudioBuffer(tempIncomingBuffer))
+        {
+            auto size = tempIncomingBuffer.getNumSamples();
+                        
+                        // shift old samples in monoBuffer
+                        juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0),
+                                                          monoBuffer.getReadPointer(0, size),
+                                                          monoBuffer.getNumSamples() - size);
+                        
+                        // copy new samples to monoBuffer
+                        juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size),
+                                                          tempIncomingBuffer.getReadPointer(0, 0),
+                                                          size);
+                        
+                        channelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.f);
+        }
+    }
+    
+    /*
+     if there are FFT buffers to pull
+        if we can pull a buffer
+            generate a path
+     
+     */
+
+    auto fftSize = channelFFTDataGenerator.getFFTSize();
+    
+    /*
+     48000 / 2048 = 23hz <- this is the bin width
+     */
+    
+    const auto binWidh = sampleRate / (double) fftSize;
+    
+    while (channelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0)
+    {
+        std::vector<float> fftData;
+        if (channelFFTDataGenerator.getFFTData(fftData))
+        {
+            pathProducer.generatePath(fftData, fftBounds, fftSize, binWidh, -48.f);
+        }
+    }
+    
+    /*
+     while there are paths that can be pull
+        pull as many as we can
+            display the most recent path
+     */
+    
+    while (pathProducer.getNumPathsAvailable() > 0)
+    {
+        pathProducer.getPath(ChannelFFTPath);
+    }
+    
+    
+}
+
 
 // member functions for ResponseCurveComponent
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p)
 : audioProcessor (p),
-leftChannelFifo(&audioProcessor.leftChannelFifo)
+leftPathProducer(audioProcessor.leftChannelFifo),
+rightPathProducer(audioProcessor.rightChannelFifo)
+
 {
     // add listeners to all parameters
     const auto& params = audioProcessor.getParameters();
@@ -195,8 +259,7 @@ leftChannelFifo(&audioProcessor.leftChannelFifo)
         param->addListener(this);
     }
     
-    leftChannelFFTDataGenerator.changeOrder(order2048);
-    monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
+    
     
     updateCurve();
     startTimerHz(30);
@@ -219,62 +282,11 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
 void ResponseCurveComponent::timerCallback()
 {
     
-    juce::AudioBuffer<float> tempIncomingBuffer;
-    
-    while (leftChannelFifo->getNumCompleteBuffersAvailable() > 0)
-    {
-        if (leftChannelFifo->getAudioBuffer(tempIncomingBuffer))
-        {
-            auto size = tempIncomingBuffer.getNumSamples();
-            
-            // shift old samples in monoBuffer
-            juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0),
-                                              monoBuffer.getReadPointer(0, size),
-                                              monoBuffer.getNumSamples() - size);
-            
-            // copy new samples to monoBuffer
-            juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size),
-                                              tempIncomingBuffer.getReadPointer(0, 0),
-                                              size);
-            
-            leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.f);
-        }
-    }
-    
-    /*
-     if there are FFT buffers to pull
-        if we can pull a buffer
-            generate a path
-     
-     */
     auto fftBounds = getAnalysisArea().toFloat();
-    auto fftSize = leftChannelFFTDataGenerator.getFFTSize();
+    auto sampleRate = audioProcessor.getSampleRate();
     
-    /*
-     48000 / 2048 = 23hz <- this is the bin width
-     */
-    
-    const auto binWidh = audioProcessor.getSampleRate() / (double) fftSize;
-    
-    while (leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0)
-    {
-        std::vector<float> fftData;
-        if (leftChannelFFTDataGenerator.getFFTData(fftData))
-        {
-            pathProducer.generatePath(fftData, fftBounds, fftSize, binWidh, -48.f);
-        }
-    }
-    
-    /*
-     while there are paths that can be pull
-        pull as many as we can
-            display the most recent path
-     */
-    
-    while (pathProducer.getNumPathsAvailable() > 0)
-    {
-        pathProducer.getPath(leftChannelFFTPath);
-    }
+    leftPathProducer.process(fftBounds, sampleRate);
+    rightPathProducer.process(fftBounds, sampleRate);
     
     if ( parametersChanged.compareAndSetBool(false, true) )
     {
@@ -387,11 +399,19 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX()+i, map(mags[i]));
     }
     
-    leftChannelFFTPath.applyTransform(juce::AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    auto leftChannelFFTPath = leftPathProducer.getPath();
+    auto rightChannelFFTPath = rightPathProducer.getPath();
     
-    g.setColour(juce::Colour(77u, 189u, 228u));
-//    g.setColour(39u, 127u, 150u);
+    leftChannelFFTPath.applyTransform(juce::AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    rightChannelFFTPath.applyTransform(juce::AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    
+    g.setColour(juce::Colour(90u, 207u, 243u));
     g.strokePath(leftChannelFFTPath, juce::PathStrokeType(1.f));
+    
+    g.setColour(juce::Colour(41u, 135u, 248u));
+//    g.setColour (juce::Colours::white);
+    g.strokePath(rightChannelFFTPath, juce::PathStrokeType(1.f));
+    
     
     g.setColour (juce::Colours::white);
     g.strokePath(responseCurve, juce::PathStrokeType(2.f));
