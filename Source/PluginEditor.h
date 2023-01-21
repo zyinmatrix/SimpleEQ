@@ -146,7 +146,7 @@ struct AnalyzerPathGenerator
             {
                 auto binFreq = binNum * binWidth;
                 auto normalizedBinX = juce::mapFromLog10(binFreq, 20.f, 20000.f);
-                
+                if (normalizedBinX >= 1) normalizedBinX = 1;
                 int binX = std::floor(normalizedBinX * width);
                 p.lineTo(binX, y);
             }
