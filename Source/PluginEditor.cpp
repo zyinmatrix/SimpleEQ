@@ -240,7 +240,6 @@ void ResponseCurveComponent::timerCallback()
                                               size);
             
             leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.f);
-            
         }
     }
     
@@ -390,7 +389,7 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX()+i, map(mags[i]));
     }
     
-    
+    leftChannelFFTPath.applyTransform(juce::AffineTransform().translation(responseArea.getX(), responseArea.getY()));
     
     g.setColour(juce::Colour(77u, 189u, 228u));
 //    g.setColour(39u, 127u, 150u);
