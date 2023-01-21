@@ -145,6 +145,8 @@ private:
     }
 };
 
+//==============================================================================
+
 // enum for slope settings
 enum Slope
 {
@@ -290,7 +292,11 @@ public:
     
 // MODIFIED by zyinmatrix
     juce::AudioProcessorValueTreeState& getAPVTS() {return apvts;}
-
+    
+    using BlockType = juce::AudioBuffer<float>;
+    SingleChannelSampleFifo<BlockType> leftChannelFifo {Channel::Left};
+    SingleChannelSampleFifo<BlockType> rightChannelFifo {Channel::Right};
+    
 
 private:
 // MODIFIED by zyinmatrix
@@ -298,7 +304,6 @@ private:
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
     
     MonoChain leftChain, rightChain;
-    
     void updateFilters();
     
     void updateBandFilters(const ChainSettings &chainSettings);
