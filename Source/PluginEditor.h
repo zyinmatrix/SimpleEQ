@@ -146,6 +146,7 @@ struct AnalyzerPathGenerator
             {
                 auto binFreq = binNum * binWidth;
                 auto normalizedBinX = juce::mapFromLog10(binFreq, 20.f, 20000.f);
+                
                 int binX = std::floor(normalizedBinX * width);
                 p.lineTo(binX, y);
             }
@@ -300,7 +301,5 @@ private:
     
     std::vector<juce::Component*> getComps();
     
-    
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessorEditor)
 };
