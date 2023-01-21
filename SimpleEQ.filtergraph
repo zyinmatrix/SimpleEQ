@@ -61,11 +61,11 @@
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
-  <FILTER uid="5" x="0.425" y="0.45" useARA="0" uiLastX_Normal="1485" uiLastY_Normal="536"
-          uiopen_Normal="1">
+  <FILTER uid="6" x="0.4875621890547264" y="0.4326923076923077" useARA="0"
+          uiLastX_Normal="138" uiLastY_Normal="468" uiopen_Normal="0">
     <PLUGIN name="SimpleEQ" format="AudioUnit" category="Effect" manufacturer="yourcompany"
             version="1.0.0" file="AudioUnit:Effects/aufx,N1bl,Manu" uniqueId="62256a61"
-            isInstrument="0" fileTime="0" infoUpdateTime="185bfc82f25" numInputs="2"
+            isInstrument="0" fileTime="0" infoUpdateTime="185cf843bb9" numInputs="2"
             numOutputs="2" isShell="0" hasARAExtension="0" uid="62256a61"/>
     <STATE>949.hAGaoMGcv.C1AHv.DTfAGfPBJrvDTTgEWvUag4VclE1XzUmbkIGUjEFcgwUYrUVak4Fcs3VXsU1UyUmXzkGbkckckI2bo8laTQWdvU1WP7fZ0MVYPwVcmklaSQWXzUFUtEVakIQSg4VcOAAc..............PCvrXKJ.....fMTk3N8nqKLpDl3ySO55BiK8vk75yo01xROv7v+....vDwvs0OWL+eLQboh8C...fS4gj9+rzfJ4Td9EvO....dUgZKB....fWceVO8nqKLF1iQjE.....lsQ4X9Cf..fzLzfCQDULQISzO.QTvTURtAWczE8CRX0S0QGb0QmDNEiXrAA.RDVclg2SQHfSPElbg0VYzUlbyA..Az.TAIUPMAP.BjFY.D.CEHTXtQVLfXjbkEG.1EFa0UF.Aj.A.......PuAD.PEjTA0D.AHPZjAP.LTfPg4FYw.xQgkla.XWXrUWY.DPBD.............UPRETS.Df.oQF.A7PABElajECHQUWXrkFc4AfcgwVckAP.IP.........7+..TAIUPMAP.BjFY.D.CEHTXtQlLfXjbkEG.1EFa0UF.Aj.A.......hiBD.PEjTA0D.AHPZjAP.LTfPg4FYx.xQgkla.XWXrUWY.DPBD.............UPRETS.Df.oQF.A7PABElajICHQUWXrkFc4AfcgwVckAP.IP.........7+..TAIUPMAP.BjFY.D.CEHTXtQ1LfXjbkEG.1EFa0UF.Aj.A.......P+BD.PEjTA0D.AHPZjAP.LTfPg4FYy.xQgkla.XWXrUWY.DPBD.............UPRETS.Df.oQF.A7PABElajMCHQUWXrkFc4AfcgwVckAP.IP.........7+..TAIUPMAP.BjFY.DfCEfTZmg1P0QGHFIWYwAfcgwVckAP.IP.......f3z.A.TAIUPMAP.BjFY.DvCEfTZmg1P0QGHSw1avUF.1EFa0UF.Aj.A............PEjTA0D.AHPZjAP.MT.Suc2P0QGHFIWYwAfcgwVckAP.IP.........M.A.TAIUPMAP.BjFY.DfCEvza2MTczAxTr8FbkAfcgwVckAP.IP.............VU4FcoQGakQF.H.PF.XB.q..N..D.HAPS.7E.jAPZ..N.kCv4.jN.rCf6.PO.2Cf+ALP.EDfBCvE.......f.A..........F..................v.kA</STATE>
     <LAYOUT>
@@ -77,8 +77,8 @@
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
-  <CONNECTION srcFilter="1" srcChannel="0" dstFilter="5" dstChannel="0"/>
-  <CONNECTION srcFilter="1" srcChannel="1" dstFilter="5" dstChannel="1"/>
-  <CONNECTION srcFilter="5" srcChannel="0" dstFilter="3" dstChannel="0"/>
-  <CONNECTION srcFilter="5" srcChannel="1" dstFilter="3" dstChannel="1"/>
+  <CONNECTION srcFilter="1" srcChannel="0" dstFilter="6" dstChannel="0"/>
+  <CONNECTION srcFilter="1" srcChannel="1" dstFilter="6" dstChannel="1"/>
+  <CONNECTION srcFilter="6" srcChannel="0" dstFilter="3" dstChannel="0"/>
+  <CONNECTION srcFilter="6" srcChannel="1" dstFilter="3" dstChannel="1"/>
 </FILTERGRAPH>
