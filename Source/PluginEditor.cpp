@@ -634,7 +634,7 @@ highCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "HighCut Slope", highCut
     highCutFreqSlider.labels.add({1.f, endFreq});
     highCutSlopeSlider.labels.add({0.f, startSlope});
     highCutSlopeSlider.labels.add({1.f, endSlope});
-    
+
     
     for( auto* comp : getComps())
     {
@@ -676,7 +676,7 @@ void SimpleEQAudioProcessorEditor::resized()
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.36);
     responseCurveComponent.setBounds(responseArea);
     
-    auto spaceMid = bounds.removeFromTop(bounds.getHeight() * 0.081);
+    auto spaceMid = bounds.removeFromTop(bounds.getHeight() * 0.018);
     auto spaceBottom = bounds.removeFromBottom(bounds.getHeight() * 0.018);
     
     // reserve area for cut filters
@@ -689,20 +689,25 @@ void SimpleEQAudioProcessorEditor::resized()
     auto band3Area = bounds;
     
     // set bounds for sliders
+    lowCutBypassButton.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 1/9));
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 1/2));
     lowCutSlopeSlider.setBounds(lowCutArea);
     
+    highCutBypassButton.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 1/9));
     highCutFreqSlider.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 1/2));
     highCutSlopeSlider.setBounds(highCutArea);
     
+    band1BypassButton.setBounds(band1Area.removeFromTop(band1Area.getHeight() * 1/9));
     band1FreqSlider.setBounds(band1Area.removeFromTop(band1Area.getHeight() * 1/3));
     band1GainSlider.setBounds(band1Area.removeFromTop(band1Area.getHeight() * 1/2));
     band1QualitySlider.setBounds(band1Area);
     
+    band2BypassButton.setBounds(band2Area.removeFromTop(band2Area.getHeight() * 1/9));
     band2FreqSlider.setBounds(band2Area.removeFromTop(band2Area.getHeight() * 1/3));
     band2GainSlider.setBounds(band2Area.removeFromTop(band2Area.getHeight() * 1/2));
     band2QualitySlider.setBounds(band2Area);
     
+    band3BypassButton.setBounds(band3Area.removeFromTop(band3Area.getHeight() * 1/9));
     band3FreqSlider.setBounds(band3Area.removeFromTop(band3Area.getHeight() * 1/3));
     band3GainSlider.setBounds(band3Area.removeFromTop(band3Area.getHeight() * 1/2));
     band3QualitySlider.setBounds(band3Area);
@@ -720,6 +725,8 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &band3FreqSlider, &band3GainSlider, &band3QualitySlider,
         &lowCutFreqSlider, &lowCutSlopeSlider,
         &highCutFreqSlider, &highCutSlopeSlider,
-        &responseCurveComponent
+        &responseCurveComponent,
+        &lowCutBypassButton, &highCutBypassButton,
+        &band1BypassButton, &band2BypassButton, &band3BypassButton
     };
 }
