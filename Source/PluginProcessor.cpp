@@ -173,7 +173,6 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     juce::dsp::AudioBlock<float> block(buffer);
     
 //    buffer.clear();
-//
 //    juce::dsp::ProcessContextReplacing<float> stereoContext(block);
 //    osc.process(stereoContext);
     
@@ -200,8 +199,8 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-    return new SimpleEQAudioProcessorEditor (*this);
-//    return new juce::GenericAudioProcessorEditor(*this);
+//    return new SimpleEQAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -253,7 +252,13 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     settings.band3Freq = apvts.getRawParameterValue("Band3 Freq")->load();
     settings.band3GainInDecibles= apvts.getRawParameterValue("Band3 Gain")->load();
     settings.band3Quality = apvts.getRawParameterValue("Band3 Quality")->load();
- 
+    
+    settings.band1Bypassed = apvts.getRawParameterValue("Band1 Bypassed")->load()>0.5f;
+    settings.band2Bypassed = apvts.getRawParameterValue("Band2 Bypassed")->load()>0.5f;
+    settings.band3Bypassed = apvts.getRawParameterValue("Band3 Bypassed")->load()>0.5f;
+    settings.lowCutBypassed = apvts.getRawParameterValue("LowCut Bypassed")->load()>0.5f;
+    settings.highCutBypassed = apvts.getRawParameterValue("HighCut Bypassed")->load()>0.5f;
+    
     return settings;
 }
 
@@ -316,6 +321,16 @@ void SimpleEQAudioProcessor::updateBandFilters(const ChainSettings &chainSetting
     
     updateCoefficients(leftChain.get<ChainPositions::Band3>().coefficients, band3Coefficients);
     updateCoefficients(rightChain.get<ChainPositions::Band3>().coefficients, band3Coefficients);
+    
+    // update bypass states
+    leftChain.setBypassed<ChainPositions::Band1>(chainSettings.band1Bypassed);
+    rightChain.setBypassed<ChainPositions::Band1>(chainSettings.band1Bypassed);
+    
+    leftChain.setBypassed<ChainPositions::Band2>(chainSettings.band2Bypassed);
+    rightChain.setBypassed<ChainPositions::Band2>(chainSettings.band2Bypassed);
+    
+    leftChain.setBypassed<ChainPositions::Band3>(chainSettings.band3Bypassed);
+    rightChain.setBypassed<ChainPositions::Band3>(chainSettings.band3Bypassed);
 }
 
 
@@ -330,6 +345,10 @@ void SimpleEQAudioProcessor::updateLowCutFilter(const ChainSettings &chainSettin
 
     auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
     updateCutFilter(rightLowCut, lowCutCoefficients, chainSettings.lowCutSlope);
+    
+    // update bypass states
+    leftChain.setBypassed<ChainPositions::LowCut>(chainSettings.lowCutBypassed);
+    rightChain.setBypassed<ChainPositions::LowCut>(chainSettings.lowCutBypassed);
 }
 
 void SimpleEQAudioProcessor::updateHighCutFilter(const ChainSettings &chainSettings)
@@ -342,6 +361,10 @@ void SimpleEQAudioProcessor::updateHighCutFilter(const ChainSettings &chainSetti
 
     auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
     updateCutFilter(rightHighCut, highCutCoefficients, chainSettings.highCutSlope);
+    
+    // update bypass states
+    leftChain.setBypassed<ChainPositions::HighCut>(chainSettings.highCutBypassed);
+    rightChain.setBypassed<ChainPositions::HighCut>(chainSettings.highCutBypassed);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout
@@ -382,6 +405,14 @@ SimpleEQAudioProcessor::createParameterLayout()
     // low cut, high cut slopes
     layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("LowCut Slope", 1), "LowCut Slope", slopeArray, 0));
     layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("HighCut Slope", 1), "HighCut Slope", slopeArray, 0));
+    
+    // bypass bottons
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("LowCut Bypassed", 1), "LowCut Bypassed", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("HighCut Bypassed", 1), "HighCut Bypassed", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("Band1 Bypassed", 1), "Band1 Bypassed", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("Band2 Bypassed", 1), "Band2 Bypassed", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("Band3 Bypassed", 1), "Band3 Bypassed", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("Analyzer Enabled", 1), "Analyzer Enabled", true));
     
     return layout;
 }
