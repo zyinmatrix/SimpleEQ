@@ -302,6 +302,14 @@ void ResponseCurveComponent::updateCurve()
 {
     auto chainSettings = getChainSettings(audioProcessor.getAPVTS());
     auto sampleRate = audioProcessor.getSampleRate();
+    
+    // update bypass states
+    monoChain.setBypassed<ChainPositions::LowCut>(chainSettings.lowCutBypassed);
+    monoChain.setBypassed<ChainPositions::HighCut>(chainSettings.highCutBypassed);
+    monoChain.setBypassed<ChainPositions::Band1>(chainSettings.band1Bypassed);
+    monoChain.setBypassed<ChainPositions::Band2>(chainSettings.band2Bypassed);
+    monoChain.setBypassed<ChainPositions::Band3>(chainSettings.band3Bypassed);
+    
     //update coefficients
     auto band1Coefficients = makeBand1Filter(chainSettings, sampleRate);
     auto band2Coefficients = makeBand2Filter(chainSettings, sampleRate);
@@ -357,24 +365,30 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
         if (!monoChain.isBypassed<ChainPositions::Band3>())
             mag *= band3.coefficients->getMagnitudeForFrequency(freq, sampleRate);
         
-        if (!lowcut.isBypassed<0>())
-            mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<1>())
-            mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<2>())
-            mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<3>())
-            mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        if (!monoChain.isBypassed<ChainPositions::LowCut>())
+        {
+            if (!lowcut.isBypassed<0>())
+                mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!lowcut.isBypassed<1>())
+                mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!lowcut.isBypassed<2>())
+                mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!lowcut.isBypassed<3>())
+                mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        }
         
-        if (!highcut.isBypassed<0>())
-            mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<1>())
-            mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<2>())
-            mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<3>())
-            mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        
+        if (!monoChain.isBypassed<ChainPositions::HighCut>())
+        {
+            if (!highcut.isBypassed<0>())
+                mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!highcut.isBypassed<1>())
+                mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!highcut.isBypassed<2>())
+                mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!highcut.isBypassed<3>())
+                mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        }
+
         // store the magnitude in dB for current frequency
         mags[i] = juce::Decibels::gainToDecibels(mag);
     }
@@ -587,8 +601,13 @@ band3QualitySliderAttachment(audioProcessor.getAPVTS(), "Band3 Quality", band3Qu
 lowCutFreqSliderAttachment(audioProcessor.getAPVTS(), "LowCut Freq", lowCutFreqSlider),
 lowCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "LowCut Slope", lowCutSlopeSlider),
 highCutFreqSliderAttachment(audioProcessor.getAPVTS(), "HighCut Freq", highCutFreqSlider),
-highCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "HighCut Slope", highCutSlopeSlider)
-
+highCutSlopeSliderAttachment(audioProcessor.getAPVTS(), "HighCut Slope", highCutSlopeSlider),
+lowCutBypassButtonAttachment(audioProcessor.getAPVTS(), "LowCut Bypassed", lowCutBypassButton),
+highCutBypassButtonAttachment(audioProcessor.getAPVTS(), "HighCut Bypassed", highCutBypassButton),
+band1BypassButtonAttachment(audioProcessor.getAPVTS(), "Band1 Bypassed", band1BypassButton),
+band2BypassButtonAttachment(audioProcessor.getAPVTS(), "Band2 Bypassed", band2BypassButton),
+band3BypassButtonAttachment(audioProcessor.getAPVTS(), "Band3 Bypassed", band3BypassButton),
+analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyzerEnabled)
 
 {
     // Make sure that before the constructor has finished, you've set the

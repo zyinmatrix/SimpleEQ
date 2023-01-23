@@ -351,6 +351,16 @@ private:
     
     juce::ToggleButton lowCutBypassButton, highCutBypassButton, band1BypassButton, band2BypassButton, band3BypassButton, analyzerEnabled;
     
+    using buttonAttachment = APVTS::ButtonAttachment;
+    
+    buttonAttachment lowCutBypassButtonAttachment,
+    highCutBypassButtonAttachment,
+    band1BypassButtonAttachment,
+    band2BypassButtonAttachment,
+    band3BypassButtonAttachment,
+    analyzerEnabledAttachment;
+    
+    
     std::vector<juce::Component*> getComps();
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessorEditor)
