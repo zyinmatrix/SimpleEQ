@@ -9,6 +9,39 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+void LookAndFeel::drawToggleButton (juce::Graphics& g,
+                       juce::ToggleButton& button,
+                       bool shouldDrawButtonAsHighlighted,
+                       bool shouldDrawButtonAsDown)
+{
+    juce:: Path powerButton;
+    
+    auto bounds = button.getLocalBounds();
+    auto size = juce::jmin(bounds.getWidth(), bounds.getHeight()) * 0.54;
+    auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+    
+    float ang = 30.f;
+    
+    powerButton.addCentredArc(r.getCentreX(),
+                              r.getCentreY(),
+                              size/2,
+                              size/2,
+                              0.f,
+                              juce::degreesToRadians(ang),
+                              juce::degreesToRadians(360.f-ang),
+                              true);
+    
+    powerButton.startNewSubPath(r.getCentreX(), r.getY());
+    powerButton.lineTo(r.getCentre());
+    
+    juce::PathStrokeType pst (2.f, juce::PathStrokeType::JointStyle::curved);
+    
+    auto color = button.getToggleState() ? juce::Colour(90u, 90u, 90u) : juce::Colour(138u, 190u, 110u);
+    
+    g.setColour(color);
+    g.strokePath(powerButton, pst);
+//    g.drawEllipse(r, 1.f);
+}
 
 void LookAndFeel::drawRotarySlider (juce::Graphics& g,
                                int x, int y, int width, int height,
@@ -17,7 +50,6 @@ void LookAndFeel::drawRotarySlider (juce::Graphics& g,
                                float rotaryEndAngle,
                        juce::Slider& slider)
 {
-    
     
     // check if is RotarySlidersWithLables
     if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
@@ -660,13 +692,23 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
         addAndMakeVisible(comp);
     }
     
+    band1BypassButton.setLookAndFeel(&lnfToggle);
+    band2BypassButton.setLookAndFeel(&lnfToggle);
+    band3BypassButton.setLookAndFeel(&lnfToggle);
+    lowCutBypassButton.setLookAndFeel(&lnfToggle);
+    highCutBypassButton.setLookAndFeel(&lnfToggle);
+    
     int seed = 45;
     setSize (15*seed, 9*seed);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
-    
+    band1BypassButton.setLookAndFeel(nullptr);
+    band2BypassButton.setLookAndFeel(nullptr);
+    band3BypassButton.setLookAndFeel(nullptr);
+    lowCutBypassButton.setLookAndFeel(nullptr);
+    highCutBypassButton.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -695,7 +737,7 @@ void SimpleEQAudioProcessorEditor::resized()
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.36);
     responseCurveComponent.setBounds(responseArea);
     
-    auto spaceMid = bounds.removeFromTop(bounds.getHeight() * 0.018);
+//    auto spaceMid = bounds.removeFromTop(bounds.getHeight() * 0.018);
     auto spaceBottom = bounds.removeFromBottom(bounds.getHeight() * 0.018);
     
     // reserve area for cut filters

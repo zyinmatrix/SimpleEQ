@@ -172,30 +172,8 @@ private:
 /* LookAndFeel struct for RotarySliderWithLabels */
 struct zyinmatrixLAF : juce::LookAndFeel_V4
 {
-    void drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
-                                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
-    {
-        auto fontSize = juce::jmin (15.0f, (float) button.getHeight() * 0.75f);
-        auto tickWidth = fontSize * 1.1f;
-
-        drawTickBox (g, button, 4.0f, ((float) button.getHeight() - tickWidth) * 0.5f,
-                     tickWidth, tickWidth,
-                     button.getToggleState(),
-                     button.isEnabled(),
-                     shouldDrawButtonAsHighlighted,
-                     shouldDrawButtonAsDown);
-
-        g.setColour (button.findColour (juce::ToggleButton::textColourId));
-        g.setFont (fontSize);
-
-        if (! button.isEnabled())
-            g.setOpacity (0.5f);
-
-        g.drawFittedText (button.getButtonText(),
-                          button.getLocalBounds().withTrimmedLeft (juce::roundToInt (tickWidth) + 10)
-                                                 .withTrimmedRight (2),
-                          juce::Justification::centredLeft, 10);
-    }
+    
+    
 };
 /* struct for custom toggle buttom */
 
@@ -211,6 +189,11 @@ struct LookAndFeel : juce::LookAndFeel_V4
                                    float rotaryStartAngle,
                                    float rotaryEndAngle,
                            juce::Slider& slider) override;
+    
+    void drawToggleButton (juce::Graphics& g,
+                           juce::ToggleButton& button,
+                           bool shouldDrawButtonAsHighlighted,
+                           bool shouldDrawButtonAsDown) override;
 };
 
 /* struct for custom sliders */
@@ -360,6 +343,7 @@ private:
     band3BypassButtonAttachment,
     analyzerEnabledAttachment;
     
+    LookAndFeel lnfToggle;
     
     std::vector<juce::Component*> getComps();
     
