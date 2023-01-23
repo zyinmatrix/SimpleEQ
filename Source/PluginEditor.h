@@ -169,14 +169,9 @@ private:
 };
 //==============================================================================
 
-/* LookAndFeel struct for RotarySliderWithLabels */
-struct zyinmatrixLAF : juce::LookAndFeel_V4
-{
-    
-    
-};
-/* struct for custom toggle buttom */
-
+/* struct for custom toggle button */
+struct PowerButton : juce::ToggleButton {};
+struct AnalyzerButton : juce::ToggleButton {};
 
 //==============================================================================
 
@@ -332,7 +327,9 @@ private:
     lowCutFreqSliderAttachment, lowCutSlopeSliderAttachment,
     highCutFreqSliderAttachment, highCutSlopeSliderAttachment;
     
-    juce::ToggleButton lowCutBypassButton, highCutBypassButton, band1BypassButton, band2BypassButton, band3BypassButton, analyzerEnabled;
+    PowerButton lowCutBypassButton, highCutBypassButton,
+                band1BypassButton, band2BypassButton, band3BypassButton;
+    AnalyzerButton analyzerEnabled;
     
     using buttonAttachment = APVTS::ButtonAttachment;
     

@@ -14,33 +14,42 @@ void LookAndFeel::drawToggleButton (juce::Graphics& g,
                        bool shouldDrawButtonAsHighlighted,
                        bool shouldDrawButtonAsDown)
 {
-    juce:: Path powerButton;
     
-    auto bounds = button.getLocalBounds();
-    auto size = juce::jmin(bounds.getWidth(), bounds.getHeight()) * 0.54;
-    auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+    if (auto* pb = dynamic_cast<PowerButton*>(&button))
+    {
+        juce::Path powerButton;
+        
+        auto bounds = button.getLocalBounds();
+        auto size = juce::jmin(bounds.getWidth(), bounds.getHeight()) * 0.54;
+        auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+        
+        float ang = 30.f;
+        
+        powerButton.addCentredArc(r.getCentreX(),
+                                  r.getCentreY(),
+                                  size/2,
+                                  size/2,
+                                  0.f,
+                                  juce::degreesToRadians(ang),
+                                  juce::degreesToRadians(360.f-ang),
+                                  true);
+        
+        powerButton.startNewSubPath(r.getCentreX(), r.getY());
+        powerButton.lineTo(r.getCentre());
+        
+        juce::PathStrokeType pst (2.f, juce::PathStrokeType::JointStyle::curved);
+        
+        auto color = button.getToggleState() ? juce::Colour(90u, 90u, 90u) : juce::Colour(138u, 190u, 110u);
+        
+        g.setColour(color);
+        g.strokePath(powerButton, pst);
+    //    g.drawEllipse(r, 1.f);
+    }
+    else if (auto* pb = dynamic_cast<AnalyzerButton*>(&button))
+    {
+        
+    }
     
-    float ang = 30.f;
-    
-    powerButton.addCentredArc(r.getCentreX(),
-                              r.getCentreY(),
-                              size/2,
-                              size/2,
-                              0.f,
-                              juce::degreesToRadians(ang),
-                              juce::degreesToRadians(360.f-ang),
-                              true);
-    
-    powerButton.startNewSubPath(r.getCentreX(), r.getY());
-    powerButton.lineTo(r.getCentre());
-    
-    juce::PathStrokeType pst (2.f, juce::PathStrokeType::JointStyle::curved);
-    
-    auto color = button.getToggleState() ? juce::Colour(90u, 90u, 90u) : juce::Colour(138u, 190u, 110u);
-    
-    g.setColour(color);
-    g.strokePath(powerButton, pst);
-//    g.drawEllipse(r, 1.f);
 }
 
 void LookAndFeel::drawRotarySlider (juce::Graphics& g,
