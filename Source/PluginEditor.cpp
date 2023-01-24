@@ -47,8 +47,29 @@ void LookAndFeel::drawToggleButton (juce::Graphics& g,
     }
     else if (auto* pb = dynamic_cast<AnalyzerButton*>(&button))
     {
+        auto color = button.getToggleState() ? juce::Colour(138u, 190u, 110u) : juce::Colour(90u, 90u, 90u);
+        g.setColour(color);
         
+        auto bounds = button.getLocalBounds();
+        g.drawRect(bounds);
+        
+        auto innerRect = bounds.reduced(1);
+        
+        juce::Path randomPath;
+        juce::Random rand;
+        
+        randomPath.startNewSubPath(innerRect.getX(),
+                                   innerRect.getY() + innerRect.getHeight()/2);
+        
+        for (auto x = innerRect.getX() + 1; x < innerRect.getRight(); x+=2)
+        {
+            randomPath.lineTo(x, innerRect.getY() + innerRect.getHeight() * rand.nextFloat());
+        }
+        
+        g.strokePath(randomPath, juce::PathStrokeType(1.f));
     }
+//    g.setColour(juce::Colour(138u, 190u, 110u));
+//    g.drawRect(button.getLocalBounds());
     
 }
 
@@ -648,7 +669,7 @@ highCutBypassButtonAttachment(audioProcessor.getAPVTS(), "HighCut Bypassed", hig
 band1BypassButtonAttachment(audioProcessor.getAPVTS(), "Band1 Bypassed", band1BypassButton),
 band2BypassButtonAttachment(audioProcessor.getAPVTS(), "Band2 Bypassed", band2BypassButton),
 band3BypassButtonAttachment(audioProcessor.getAPVTS(), "Band3 Bypassed", band3BypassButton),
-analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyzerEnabled)
+analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyzerEnabledButton)
 
 {
     // Make sure that before the constructor has finished, you've set the
@@ -706,6 +727,7 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
     band3BypassButton.setLookAndFeel(&lnfToggle);
     lowCutBypassButton.setLookAndFeel(&lnfToggle);
     highCutBypassButton.setLookAndFeel(&lnfToggle);
+    analyzerEnabledButton.setLookAndFeel(&lnfToggle);
     
     int seed = 45;
     setSize (15*seed, 9*seed);
@@ -718,6 +740,7 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
     band3BypassButton.setLookAndFeel(nullptr);
     lowCutBypassButton.setLookAndFeel(nullptr);
     highCutBypassButton.setLookAndFeel(nullptr);
+    analyzerEnabledButton.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -742,9 +765,15 @@ void SimpleEQAudioProcessorEditor::resized()
     // subcomponents in your editor..
     
     auto bounds = getLocalBounds();
+    // reserve area for analyzer button
+    auto topArea = bounds.removeFromTop(bounds.getHeight() * 0.09);
+    auto analyzerEnabledArea = topArea.removeFromLeft(topArea.getWidth() * 0.18);
+    analyzerEnabledArea = analyzerEnabledArea.withSizeKeepingCentre(analyzerEnabledArea.getWidth() * 0.9, analyzerEnabledArea.getHeight() * 0.6);
+    
     // reserve area for frequency analyser
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.36);
     responseCurveComponent.setBounds(responseArea);
+    
     
 //    auto spaceMid = bounds.removeFromTop(bounds.getHeight() * 0.018);
     auto spaceBottom = bounds.removeFromBottom(bounds.getHeight() * 0.018);
@@ -758,7 +787,9 @@ void SimpleEQAudioProcessorEditor::resized()
     auto band2Area = bounds.removeFromLeft(bounds.getWidth() * 1/2);
     auto band3Area = bounds;
     
-    // set bounds for sliders
+    // set bounds for sliders and buttons
+    analyzerEnabledButton.setBounds(analyzerEnabledArea);
+    
     lowCutBypassButton.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 1/9));
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 1/2));
     lowCutSlopeSlider.setBounds(lowCutArea);
@@ -782,6 +813,7 @@ void SimpleEQAudioProcessorEditor::resized()
     band3GainSlider.setBounds(band3Area.removeFromTop(band3Area.getHeight() * 1/2));
     band3QualitySlider.setBounds(band3Area);
     
+    
 }
 
 // MODIFIED by zyinmatrix
@@ -797,6 +829,7 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &highCutFreqSlider, &highCutSlopeSlider,
         &responseCurveComponent,
         &lowCutBypassButton, &highCutBypassButton,
-        &band1BypassButton, &band2BypassButton, &band3BypassButton
+        &band1BypassButton, &band2BypassButton, &band3BypassButton,
+        &analyzerEnabledButton
     };
 }

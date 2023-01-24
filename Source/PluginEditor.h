@@ -329,7 +329,7 @@ private:
     
     PowerButton lowCutBypassButton, highCutBypassButton,
                 band1BypassButton, band2BypassButton, band3BypassButton;
-    AnalyzerButton analyzerEnabled;
+    AnalyzerButton analyzerEnabledButton;
     
     using buttonAttachment = APVTS::ButtonAttachment;
     
