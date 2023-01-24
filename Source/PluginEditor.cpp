@@ -17,7 +17,7 @@ void LookAndFeel::drawToggleButton (juce::Graphics& g,
     
     if (auto* pb = dynamic_cast<PowerButton*>(&button))
     {
-        juce::Path powerButton;
+        juce::Path powerButtonPath;
         
         auto bounds = button.getLocalBounds();
         auto size = juce::jmin(bounds.getWidth(), bounds.getHeight()) * 0.54;
@@ -25,7 +25,7 @@ void LookAndFeel::drawToggleButton (juce::Graphics& g,
         
         float ang = 30.f;
         
-        powerButton.addCentredArc(r.getCentreX(),
+        powerButtonPath.addCentredArc(r.getCentreX(),
                                   r.getCentreY(),
                                   size/2,
                                   size/2,
@@ -34,18 +34,18 @@ void LookAndFeel::drawToggleButton (juce::Graphics& g,
                                   juce::degreesToRadians(360.f-ang),
                                   true);
         
-        powerButton.startNewSubPath(r.getCentreX(), r.getY());
-        powerButton.lineTo(r.getCentre());
+        powerButtonPath.startNewSubPath(r.getCentreX(), r.getY());
+        powerButtonPath.lineTo(r.getCentre());
         
         juce::PathStrokeType pst (2.f, juce::PathStrokeType::JointStyle::curved);
         
         auto color = button.getToggleState() ? juce::Colour(90u, 90u, 90u) : juce::Colour(138u, 190u, 110u);
         
         g.setColour(color);
-        g.strokePath(powerButton, pst);
+        g.strokePath(powerButtonPath, pst);
     //    g.drawEllipse(r, 1.f);
     }
-    else if (auto* pb = dynamic_cast<AnalyzerButton*>(&button))
+    else if (auto* analyzerButton = dynamic_cast<AnalyzerButton*>(&button))
     {
         auto color = button.getToggleState() ? juce::Colour(138u, 190u, 110u) : juce::Colour(90u, 90u, 90u);
         g.setColour(color);
@@ -55,18 +55,7 @@ void LookAndFeel::drawToggleButton (juce::Graphics& g,
         
         auto innerRect = bounds.reduced(1);
         
-        juce::Path randomPath;
-        juce::Random rand;
-        
-        randomPath.startNewSubPath(innerRect.getX(),
-                                   innerRect.getY() + innerRect.getHeight()/2);
-        
-        for (auto x = innerRect.getX() + 1; x < innerRect.getRight(); x+=2)
-        {
-            randomPath.lineTo(x, innerRect.getY() + innerRect.getHeight() * rand.nextFloat());
-        }
-        
-        g.strokePath(randomPath, juce::PathStrokeType(1.f));
+        g.strokePath(analyzerButton->randomPath, juce::PathStrokeType(1.f));
     }
 //    g.setColour(juce::Colour(138u, 190u, 110u));
 //    g.drawRect(button.getLocalBounds());
@@ -729,7 +718,7 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
     highCutBypassButton.setLookAndFeel(&lnfToggle);
     analyzerEnabledButton.setLookAndFeel(&lnfToggle);
     
-    int seed = 45;
+    int seed = 49;
     setSize (15*seed, 9*seed);
 }
 
@@ -765,18 +754,20 @@ void SimpleEQAudioProcessorEditor::resized()
     // subcomponents in your editor..
     
     auto bounds = getLocalBounds();
+    
     // reserve area for analyzer button
     auto topArea = bounds.removeFromTop(bounds.getHeight() * 0.09);
-    auto analyzerEnabledArea = topArea.removeFromLeft(topArea.getWidth() * 0.18);
-    analyzerEnabledArea = analyzerEnabledArea.withSizeKeepingCentre(analyzerEnabledArea.getWidth() * 0.9, analyzerEnabledArea.getHeight() * 0.6);
+    auto titleArea = topArea.withSizeKeepingCentre(topArea.getWidth() * 0.3, topArea.getHeight());
+    auto tagArea = topArea.removeFromRight(topArea.getWidth() * 1/10);
+    auto analyzerEnabledArea = topArea.removeFromLeft(topArea.getWidth() * 1/9);
+    analyzerEnabledArea = analyzerEnabledArea.withSizeKeepingCentre(analyzerEnabledArea.getWidth() * 0.81, analyzerEnabledArea.getHeight() * 0.6);
     
     // reserve area for frequency analyser
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.36);
     responseCurveComponent.setBounds(responseArea);
     
-    
 //    auto spaceMid = bounds.removeFromTop(bounds.getHeight() * 0.018);
-    auto spaceBottom = bounds.removeFromBottom(bounds.getHeight() * 0.018);
+    auto spaceBottom = bounds.removeFromBottom(bounds.getHeight() * 0.063);
     
     // reserve area for cut filters
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 1/5);
@@ -812,7 +803,6 @@ void SimpleEQAudioProcessorEditor::resized()
     band3FreqSlider.setBounds(band3Area.removeFromTop(band3Area.getHeight() * 1/3));
     band3GainSlider.setBounds(band3Area.removeFromTop(band3Area.getHeight() * 1/2));
     band3QualitySlider.setBounds(band3Area);
-    
     
 }
 

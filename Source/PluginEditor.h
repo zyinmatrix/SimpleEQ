@@ -171,7 +171,32 @@ private:
 
 /* struct for custom toggle button */
 struct PowerButton : juce::ToggleButton {};
-struct AnalyzerButton : juce::ToggleButton {};
+struct AnalyzerButton : juce::ToggleButton
+{
+    void resized() override
+    {
+        auto bounds = getLocalBounds();
+        auto innerRect = bounds.reduced(2);
+    
+        randomPath.clear();
+        juce::Random rand;
+        auto innerX = innerRect.getX();
+        auto innerY =innerRect.getY();
+        
+        randomPath.startNewSubPath(innerX,
+                                   innerY + innerRect.getHeight()/2);
+        
+        for (auto x = innerX + 1; x < innerRect.getRight()-1; x+=2)
+        {
+            randomPath.lineTo(x, innerY + innerRect.getHeight() * rand.nextFloat());
+        }
+        
+        randomPath.lineTo(innerRect.getRight(), innerY + innerRect.getHeight()/2);
+    }
+
+    juce::Path randomPath;
+    
+};
 
 //==============================================================================
 
