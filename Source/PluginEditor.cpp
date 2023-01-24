@@ -717,13 +717,14 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
     highCutFreqSlider.labels.add({1.f, endFreq});
     highCutSlopeSlider.labels.add({0.f, startSlope});
     highCutSlopeSlider.labels.add({1.f, endSlope});
-
     
+    // make all components visible
     for( auto* comp : getComps())
     {
         addAndMakeVisible(comp);
     }
     
+    // set LookAndFeel for buttons
     band1BypassButton.setLookAndFeel(&lnfToggle);
     band2BypassButton.setLookAndFeel(&lnfToggle);
     band3BypassButton.setLookAndFeel(&lnfToggle);
@@ -731,6 +732,7 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
     highCutBypassButton.setLookAndFeel(&lnfToggle);
     analyzerEnabledButton.setLookAndFeel(&lnfToggle);
     
+    // connect analyzer button to response curve
     auto safePtr = juce::Component::SafePointer<SimpleEQAudioProcessorEditor>(this);
     analyzerEnabledButton.onClick = [safePtr]()
     {
@@ -741,7 +743,7 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
         }
     };
     
-    
+    // set editor size
     int seed = 49;
     setSize (15*seed, 9*seed);
 }
