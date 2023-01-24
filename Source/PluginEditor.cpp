@@ -310,7 +310,7 @@ rightPathProducer(audioProcessor.rightChannelFifo)
         param->addListener(this);
     }
     
-    
+    shouldShowFFTAnalysis = true;
     
     updateCurve();
     startTimerHz(30);
@@ -332,12 +332,22 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
 
 void ResponseCurveComponent::timerCallback()
 {
+    if (shouldShowFFTAnalysis)
+    {
+        auto fftBounds = getAnalysisArea().toFloat();
+        auto sampleRate = audioProcessor.getSampleRate();
+        
+        leftPathProducer.process(fftBounds, sampleRate);
+        rightPathProducer.process(fftBounds, sampleRate);
+    }
     
-    auto fftBounds = getAnalysisArea().toFloat();
-    auto sampleRate = audioProcessor.getSampleRate();
     
-    leftPathProducer.process(fftBounds, sampleRate);
-    rightPathProducer.process(fftBounds, sampleRate);
+//    auto fftBounds = getAnalysisArea().toFloat();
+//    auto sampleRate = audioProcessor.getSampleRate();
+//
+//    leftPathProducer.process(fftBounds, sampleRate);
+//    rightPathProducer.process(fftBounds, sampleRate);
+    
     
     if ( parametersChanged.compareAndSetBool(false, true) )
     {
@@ -470,14 +480,17 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     leftChannelFFTPath.applyTransform(juce::AffineTransform().translation(responseArea.getX(), responseArea.getY()));
     rightChannelFFTPath.applyTransform(juce::AffineTransform().translation(responseArea.getX(), responseArea.getY()));
     
-    g.setColour(juce::Colour(90u, 207u, 243u));
-    g.strokePath(leftChannelFFTPath, juce::PathStrokeType(1.f));
+    if (shouldShowFFTAnalysis)
+    {
+        // draw FFT Paths
+        g.setColour(juce::Colour(90u, 207u, 243u));
+        g.strokePath(leftChannelFFTPath, juce::PathStrokeType(1.f));
+        
+        g.setColour(juce::Colour(41u, 135u, 248u));
+        g.strokePath(rightChannelFFTPath, juce::PathStrokeType(1.f));
+    }
     
-    g.setColour(juce::Colour(41u, 135u, 248u));
-//    g.setColour (juce::Colours::white);
-    g.strokePath(rightChannelFFTPath, juce::PathStrokeType(1.f));
-    
-    
+    // draw Response Curve
     g.setColour (juce::Colours::white);
     g.strokePath(responseCurve, juce::PathStrokeType(2.f));
     g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
@@ -718,6 +731,17 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
     highCutBypassButton.setLookAndFeel(&lnfToggle);
     analyzerEnabledButton.setLookAndFeel(&lnfToggle);
     
+    auto safePtr = juce::Component::SafePointer<SimpleEQAudioProcessorEditor>(this);
+    analyzerEnabledButton.onClick = [safePtr]()
+    {
+        if (auto* editorComp = safePtr.getComponent())
+        {
+            bool enabled = editorComp->analyzerEnabledButton.getToggleState();
+            editorComp->responseCurveComponent.setFFTEnabled(enabled);
+        }
+    };
+    
+    
     int seed = 49;
     setSize (15*seed, 9*seed);
 }
@@ -804,6 +828,8 @@ void SimpleEQAudioProcessorEditor::resized()
     band3GainSlider.setBounds(band3Area.removeFromTop(band3Area.getHeight() * 1/2));
     band3QualitySlider.setBounds(band3Area);
     
+    // set FFT Enabled state
+    responseCurveComponent.setFFTEnabled(analyzerEnabledButton.getToggleState());
 }
 
 // MODIFIED by zyinmatrix
