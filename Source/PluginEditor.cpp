@@ -341,19 +341,10 @@ void ResponseCurveComponent::timerCallback()
         rightPathProducer.process(fftBounds, sampleRate);
     }
     
-    
-//    auto fftBounds = getAnalysisArea().toFloat();
-//    auto sampleRate = audioProcessor.getSampleRate();
-//
-//    leftPathProducer.process(fftBounds, sampleRate);
-//    rightPathProducer.process(fftBounds, sampleRate);
-    
-    
     if ( parametersChanged.compareAndSetBool(false, true) )
     {
 //        DBG( "params changed " );
         updateCurve(); // update the monochain
-//        repaint(); //signal a repaint
     }
     
     repaint();
@@ -744,7 +735,7 @@ analyzerEnabledAttachment(audioProcessor.getAPVTS(), "Analyzer Enabled", analyze
     };
     
     // set editor size
-    int seed = 49;
+    int seed = 50;
     setSize (15*seed, 9*seed);
 }
 
@@ -768,7 +759,41 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
 //    g.fillAll (juce::Colour(47u, 50u, 57u));
 //    g.fillAll (juce::Colour(27u, 27u, 36u));
     
+    juce::Path curve;
+        
+    auto bounds = getLocalBounds();
+    auto center = bounds.getCentre();
     
+    juce::String title { "ZY's Multiband EQ" };
+    g.setFont(30);
+    auto titleWidth = g.getCurrentFont().getStringWidth(title);
+    
+    curve.startNewSubPath(center.x, 32);
+    curve.lineTo(center.x - titleWidth * 0.45f, 32);
+    
+    auto cornerSize = 20;
+    auto curvePos = curve.getCurrentPosition();
+    curve.quadraticTo(curvePos.getX() - cornerSize, curvePos.getY(),
+                      curvePos.getX() - cornerSize, curvePos.getY() - 16);
+    curvePos = curve.getCurrentPosition();
+    curve.quadraticTo(curvePos.getX(), 2,
+                      curvePos.getX() - cornerSize, 2);
+    
+    curve.lineTo({0.f, 2.f});
+    curve.lineTo(0.f, 0.f);
+    curve.lineTo(center.x, 0.f);
+    curve.closeSubPath();
+    
+    g.setColour(juce::Colour(255u, 134u, 182u));
+    g.fillPath(curve);
+    
+    curve.applyTransform(juce::AffineTransform().scaled(-1, 1));
+    curve.applyTransform(juce::AffineTransform().translated(getWidth(), 0));
+    g.fillPath(curve);
+    
+    
+    g.setColour(juce::Colour(255u, 255u, 255u));
+    g.drawFittedText(title, bounds, juce::Justification::centredTop, 1);
     
 //    g.setFont (15.0f);
 //    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
